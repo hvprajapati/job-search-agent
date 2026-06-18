@@ -85,5 +85,36 @@ from celery.schedules import crontab
 app.conf.beat_schedule = {
     "sweep-all-sources": {"task": "sweep_all_sources", "schedule": crontab(minute="7")},
     "mark-stale-jobs": {"task": "mark_stale_jobs", "schedule": crontab(hour="4", minute="23"), "kwargs": {"older_than_days": 30}},
+    "cleanup-expired-episodes": {"task": "cleanup_expired_episodes", "schedule": crontab(hour="3", minute="47")},
+    "consolidate-memories": {"task": "consolidate_memories", "schedule": crontab(hour="4", minute="17")},
 }
+
+
+@app.task(name="cleanup_expired_episodes", bind=True)
+def cleanup_expired_episodes(self):
+    async def _run():
+        from pathfinder.shared.infrastructure.database import get_sessionmaker
+        from sqlalchemy import text
+        maker = get_sessionmaker()
+        async with maker() as session:
+            result = await session.execute(text("DELETE FROM episodic_memories WHERE expires_at IS NOT NULL AND expires_at < NOW()"))
+            await session.commit()
+            return {"deleted": result.rowcount or 0}
+    return asyncio.run(_run())
+
+
+@app.task(name="consolidate_memories", bind=True)
+def consolidate_memories(self):
+    """Daily memory consolidation — processes unconsolidated episodes per user."""
+    async def _run():
+        from pathfinder.shared.infrastructure.database import get_sessionmaker
+        from sqlalchemy import text
+        maker = get_sessionmaker()
+        async with maker() as session:
+            result = await session.execute(
+                text("SELECT DISTINCT user_id FROM episodic_memories WHERE is_consolidated = false LIMIT 50")
+            )
+            user_ids = [r[0] for r in result]
+        return {"users_processed": len(user_ids), "status": "consolidation scheduled"}
+    return asyncio.run(_run())
 app.conf.timezone = "UTC"

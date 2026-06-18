@@ -1,0 +1,71 @@
+graph TD
+    subgraph "Client Layer"
+        A[Browser / API Client]
+    end
+
+    subgraph "API Gateway"
+        B[FastAPI + Uvicorn]
+        B1[Auth Middleware]
+        B2[Rate Limiter]
+        B3[Request ID]
+        B4[Security Headers]
+    end
+
+    subgraph "Agent Layer"
+        C[LangGraph Supervisor Agent]
+        C1[Guardrail]
+        C2[Context Builder]
+        C3[Intent Router]
+        C4[Task Planner]
+        C5[Tool Executor]
+        C6[Result Synthesizer]
+        C7[Quality Gate]
+    end
+
+    subgraph "Service Layer"
+        D1[Profile Service]
+        D2[Job Discovery]
+        D3[Matching Engine]
+        D4[Tailoring Engine]
+        D5[Knowledge Service]
+        D6[Application Tracking]
+    end
+
+    subgraph "Data Layer"
+        E1[(PostgreSQL + pgvector)]
+        E2[(Redis)]
+        E3[Celery Workers]
+        E4[Celery Beat]
+    end
+
+    subgraph "External"
+        F1[DeepSeek API]
+        F2[Job Sources]
+        F3[Sentry]
+    end
+
+    A --> B
+    B --> B1 --> B2 --> B3 --> B4
+    B --> C
+    C --> C1 --> C2 --> C3 --> C4 --> C5 --> C6 --> C7
+    C5 --> D1
+    C5 --> D2
+    C5 --> D3
+    C5 --> D4
+    C5 --> D5
+    D1 --> E1
+    D2 --> E1
+    D3 --> E1
+    D4 --> E1
+    D5 --> E1
+    D6 --> E1
+    B --> E2
+    C --> E2
+    E4 --> E3
+    E3 --> D2
+    E3 --> E1
+    C3 --> F1
+    C4 --> F1
+    D4 --> F1
+    D2 --> F2
+    B --> F3

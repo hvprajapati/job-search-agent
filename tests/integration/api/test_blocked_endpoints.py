@@ -7,6 +7,20 @@ pytestmark = pytest.mark.integration
 
 
 @pytest.fixture
+async def app():
+    """Skip if no PostgreSQL available."""
+    import os
+    try:
+        import asyncpg
+        conn = await asyncpg.connect(os.environ.get("TEST_DATABASE_URL",
+            "postgresql+asyncpg://pathfinder:pathfinder_dev@localhost:5432/pathfinder_test"), timeout=3)
+        await conn.close()
+    except Exception:
+        pytest.skip("PostgreSQL not available")
+    return create_app()
+
+
+@pytest.fixture
 async def client_and_token():
     app = create_app()
     transport = ASGITransport(app=app)

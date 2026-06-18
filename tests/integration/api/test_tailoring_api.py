@@ -8,6 +8,14 @@ pytestmark = pytest.mark.integration
 
 @pytest.fixture
 async def client_and_token():
+    import os
+    try:
+        import asyncpg
+        conn = await asyncpg.connect(os.environ.get("TEST_DATABASE_URL",
+            "postgresql+asyncpg://pathfinder:pathfinder_dev@localhost:5432/pathfinder_test"), timeout=3)
+        await conn.close()
+    except Exception:
+        pytest.skip("PostgreSQL not available")
     app = create_app()
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as c:

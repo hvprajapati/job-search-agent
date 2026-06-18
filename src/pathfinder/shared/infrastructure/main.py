@@ -22,11 +22,14 @@ from pathfinder.tracking.presentation.router import router as tracking_router
 from pathfinder.shared.infrastructure.middleware.request_id import RequestIdMiddleware
 from pathfinder.shared.infrastructure.middleware.security_headers import SecurityHeadersMiddleware
 from pathfinder.shared.infrastructure.middleware.rate_limit import RateLimitMiddleware
+from pathfinder.shared.infrastructure.middleware.auth import AuthMiddleware
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     setup_logging()
+    from pathfinder.shared.infrastructure.tenant import ensure_default_tenant_exists
+    await ensure_default_tenant_exists()
     yield
     await close_database()
     await close_redis()
@@ -41,6 +44,7 @@ def create_app() -> FastAPI:
         lifespan=lifespan,
     )
 
+    app.add_middleware(AuthMiddleware)
     app.add_middleware(RequestIdMiddleware)
     app.add_middleware(SecurityHeadersMiddleware)
     app.add_middleware(
