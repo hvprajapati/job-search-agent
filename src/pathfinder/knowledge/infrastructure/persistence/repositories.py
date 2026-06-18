@@ -77,7 +77,7 @@ class SqlKnowledgeChunkRepository(KnowledgeChunkRepository):
         stmt = select(KnowledgeChunkModel).where(
             KnowledgeChunkModel.user_id == user_id,
             KnowledgeChunkModel.is_active == True,
-            KnowledgeChunkModel.embedding != None,
+            KnowledgeChunkModel.embedding.isnot(None),
         ).order_by(KnowledgeChunkModel.embedding.cosine_distance(query_embedding)).limit(limit)
         result = await self._session.execute(stmt)
         return [m.to_domain() for m in result.scalars()]

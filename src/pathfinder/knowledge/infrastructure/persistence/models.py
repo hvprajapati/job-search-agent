@@ -59,13 +59,14 @@ class KnowledgeChunkModel(Base, UUIDMixin, TimestampMixin):
     chunk_index: Mapped[int] = mapped_column(Integer, default=0)
     token_count: Mapped[int] = mapped_column(Integer, default=0)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    content_tsv: Mapped[str | None] = mapped_column(Text, nullable=True, deferred=True)
 
     def to_domain(self) -> KnowledgeChunk:
         meta = self.chunk_metadata or {}
         return KnowledgeChunk(
             id=self.id, document_id=self.document_id, user_id=self.user_id,
             content=self.content or "", content_hash=self.content_hash or "",
-            embedding=list(self.embedding) if self.embedding else None,
+            embedding=list(self.embedding) if self.embedding is not None and len(self.embedding) > 0 else None,
             metadata=ChunkMetadata(**meta) if meta else None,
             chunk_index=self.chunk_index or 0, token_count=self.token_count or 0,
             is_active=self.is_active or True,
