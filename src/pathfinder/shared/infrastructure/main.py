@@ -1,0 +1,112 @@
+"""FastAPI application factory — all routers registered here."""
+from contextlib import asynccontextmanager
+from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from pathfinder.shared.config import get_settings
+from pathfinder.shared.infrastructure.database import close_database, check_database_health
+from pathfinder.shared.infrastructure.redis import close_redis, check_redis_health
+from pathfinder.shared.infrastructure.logging_config import setup_logging
+from pathfinder.shared.domain.exceptions import (
+    DomainError, NotFoundError, ValidationError, ConflictError,
+    UnauthorizedError, ForbiddenError,
+)
+from pathfinder.identity.presentation.router import router as auth_router
+from pathfinder.profile.presentation.router import router as profile_router
+from pathfinder.profile.presentation.tailoring_router import router as tailoring_router
+from pathfinder.jobs.presentation.router import router as jobs_router
+from pathfinder.jobs.presentation.matching_router import router as matching_router
+from pathfinder.agent.presentation.router import router as agent_router
+from pathfinder.knowledge.presentation.router import router as knowledge_router
+from pathfinder.shared.infrastructure.middleware.request_id import RequestIdMiddleware
+from pathfinder.shared.infrastructure.middleware.security_headers import SecurityHeadersMiddleware
+from pathfinder.shared.infrastructure.middleware.rate_limit import RateLimitMiddleware
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    setup_logging()
+    yield
+    await close_database()
+    await close_redis()
+
+
+def create_app() -> FastAPI:
+    settings = get_settings()
+    app = FastAPI(
+        title="Pathfinder API",
+        version="0.1.0",
+        docs_url="/docs" if settings.is_development else None,
+        lifespan=lifespan,
+    )
+
+    app.add_middleware(RequestIdMiddleware)
+    app.add_middleware(SecurityHeadersMiddleware)
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=settings.app_cors_origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+    app.add_middleware(RateLimitMiddleware)
+
+    _status_map = {
+        NotFoundError: 404, ValidationError: 422, ConflictError: 409,
+        UnauthorizedError: 401, ForbiddenError: 403,
+    }
+
+    @app.exception_handler(DomainError)
+    async def domain_error_handler(request: Request, exc: DomainError):
+        status = _status_map.get(type(exc), 400)
+        return JSONResponse(
+            status_code=status,
+            content={
+                "error": {
+                    "code": type(exc).__name__.upper(),
+                    "message": exc.message,
+                    "request_id": getattr(request.state, "request_id", None),
+                }
+            },
+        )
+
+    # Register all routers
+    app.include_router(auth_router)
+    app.include_router(profile_router)
+    app.include_router(tailoring_router)
+    app.include_router(jobs_router)
+    app.include_router(matching_router)
+    app.include_router(agent_router)
+    app.include_router(knowledge_router)
+
+    @app.get("/v1/health/live", tags=["Health"])
+    async def health_live():
+        return {"status": "ok"}
+
+    @app.get("/v1/health/ready", tags=["Health"])
+    async def health_ready():
+        db_ok = await check_database_health()
+        redis_ok = await check_redis_health()
+        all_ok = db_ok and redis_ok
+        return JSONResponse(
+            status_code=200 if all_ok else 503,
+            content={"status": "ok" if all_ok else "degraded", "db": db_ok, "redis": redis_ok},
+        )
+
+    @app.get("/v1/health", tags=["Health"])
+    async def health():
+        db_ok = await check_database_health()
+        redis_ok = await check_redis_health()
+        from pathfinder.shared.infrastructure.llm_health import llm_health
+        llm_status = llm_health.metrics
+        all_ok = db_ok and redis_ok and llm_health.status.value != "unavailable"
+        return {
+            "status": "ok" if all_ok else "degraded",
+            "version": "0.1.0",
+            "components": {"db": db_ok, "redis": redis_ok, "llm": llm_status},
+        }
+
+    return app
+
+
+app = create_app()

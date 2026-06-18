@@ -86,6 +86,8 @@ D:\JOB search Agent\
 ├── SPRINT_8.md              ← Sprint 8: Knowledge & RAG System (with code)
 ├── SPRINT_8_REVIEW.md        ← Sprint 8 Principal AI Engineer Review
 ├── SPRINT_8_REMEDIATION.md   ← Sprint 8 Remediation (v8.0.1) ★ APPROVED
+├── ARCHITECTURE_AUDIT.md    ← Full System Architecture Audit (Sprints 1-8)
+├── SPRINT_9.md              ← Sprint 9: Resume Tailoring Engine (with code)
 ├── docs/                    ← Additional documentation (to be added)
 ├── design/                 ← Design files, wireframes, mockups (to be added)
 └── src/                    ← Source code (to be added — MVP development)
@@ -123,7 +125,9 @@ D:\JOB search Agent\
 - **[SPRINT_7_FINAL.md](./SPRINT_7_FINAL.md)** — Sprint 7 Finalization (v7.0.2). All gaps closed. ★ APPROVED.
 - **[SPRINT_8.md](./SPRINT_8.md)** — Sprint 8: Knowledge & RAG System (v1.0). Document ingestion, chunking, hybrid retrieval, re-ranking, agent integration.
 - **[SPRINT_8_REVIEW.md](./SPRINT_8_REVIEW.md)** — Sprint 8 PE Review. 1 critical, 4 major.
-- **[SPRINT_8_REMEDIATION.md](./SPRINT_8_REMEDIATION.md)** — Sprint 8 Remediation (v8.0.1). All issues resolved. ★ **SPRINT 8 APPROVED FOR PRODUCTION**
+- **[SPRINT_8_REMEDIATION.md](./SPRINT_8_REMEDIATION.md)** — Sprint 8 Remediation (v8.0.1). ★ APPROVED.
+- **[ARCHITECTURE_AUDIT.md](./ARCHITECTURE_AUDIT.md)** — Full System Audit (Sprints 1–8). B+ overall. ★ APPROVED.
+- **[SPRINT_9.md](./SPRINT_9.md)** — Sprint 9: Resume Tailoring Engine (v1.0). LLM-based tailoring with factuality guardrails, keyword optimization, diff tracking, version management.
 
 ## Getting Involved
 
