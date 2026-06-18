@@ -93,6 +93,12 @@ def create_app() -> FastAPI:
             content={"status": "ok" if all_ok else "degraded", "db": db_ok, "redis": redis_ok},
         )
 
+    @app.get("/v1/metrics", tags=["Observability"])
+    async def metrics_endpoint():
+        from pathfinder.shared.infrastructure.metrics import metrics as m
+        from fastapi.responses import PlainTextResponse
+        return PlainTextResponse(content=m.get_metrics(), media_type="text/plain")
+
     @app.get("/v1/health", tags=["Health"])
     async def health():
         db_ok = await check_database_health()
