@@ -1,0 +1,108 @@
+version: "3.9"
+services:
+  api:
+    build: .
+    container_name: pathfinder-api
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - APP_ENV=production
+      - APP_DEBUG=false
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL}
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}
+      - JWT_ALGORITHM=${JWT_ALGORITHM:-RS256}
+      - JWT_PRIVATE_KEY=${JWT_PRIVATE_KEY}
+      - JWT_PUBLIC_KEY=${JWT_PUBLIC_KEY}
+      - SENTRY_DSN=${SENTRY_DSN:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/v1/health/live')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    networks:
+      - pathfinder-net
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+        reservations:
+          cpus: '0.5'
+          memory: 1G
+
+  celery-worker:
+    build: .
+    container_name: pathfinder-celery
+    restart: always
+    command: celery -A pathfinder.agent.infrastructure.celery_tasks.scraping worker -Q scraping,celery -c 4
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL}
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - pathfinder-net
+
+  celery-beat:
+    build: .
+    container_name: pathfinder-beat
+    restart: always
+    command: celery -A pathfinder.agent.infrastructure.celery_tasks.scraping beat
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL}
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - pathfinder-net
+
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: pathfinder-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-pathfinder}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-pathfinder}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-pathfinder}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - pathfinder-net
+
+  redis:
+    image: redis:7-alpine
+    container_name: pathfinder-redis
+    restart: always
+    command: redis-server --appendonly yes --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - pathfinder-net
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  pathfinder-net:
+    driver: bridge
