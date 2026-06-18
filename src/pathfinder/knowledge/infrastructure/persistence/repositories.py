@@ -77,7 +77,7 @@ class SqlKnowledgeChunkRepository(KnowledgeChunkRepository):
         stmt = select(KnowledgeChunkModel).where(
             KnowledgeChunkModel.user_id == user_id,
             KnowledgeChunkModel.is_active == True,
-            KnowledgeChunkModel.embedding.is_not(None),
+            KnowledgeChunkModel.embedding != None,
         ).order_by(KnowledgeChunkModel.embedding.cosine_distance(query_embedding)).limit(limit)
         result = await self._session.execute(stmt)
         return [m.to_domain() for m in result.scalars()]
@@ -98,10 +98,9 @@ class SqlKnowledgeChunkRepository(KnowledgeChunkRepository):
         vw = query.hybrid_weight
         kw = 1.0 - vw
 
-        import asyncio
-        v_task = self.vector_search(query_embedding=query_embedding, user_id=UUID(query.user_id), limit=50)
-        k_task = self.keyword_search(query=query.query_text, user_id=UUID(query.user_id), limit=50)
-        v_results, k_results = await asyncio.gather(v_task, k_task)
+        # Run sequentially to avoid transaction conflicts on shared session
+        v_results = await self.vector_search(query_embedding=query_embedding, user_id=UUID(query.user_id), limit=50)
+        k_results = await self.keyword_search(query=query.query_text, user_id=UUID(query.user_id), limit=50)
 
         scores: dict[str, dict] = {}
         for i, chunk in enumerate(v_results):

@@ -22,14 +22,17 @@ class EpisodicMemoryModel(Base, UUIDMixin):
     embedding: Mapped[list[float] | None] = mapped_column(Vector(1536), nullable=True)
     context_summary: Mapped[str | None] = mapped_column(Text)
     parent_episode_id: Mapped[UUID | None] = mapped_column(PGUUID, nullable=True)
-    consolidation_run_id: Mapped[UUID | None] = mapped_column(PGUUID, nullable=True)
+    consolidation_run_id: Mapped[UUID | None] = mapped_column("consolidation_id", PGUUID, nullable=True)
     is_consolidated: Mapped[bool] = mapped_column(Boolean, default=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     recorded_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
 
-class SemanticMemoryModel(Base, UUIDMixin, TimestampMixin):
+class SemanticMemoryModel(Base, UUIDMixin):
+    # NOTE: TimestampMixin not used — this table has last_updated_at (not updated_at)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
+    last_updated_at: Mapped[datetime | None] = mapped_column("last_updated_at", DateTime(timezone=True), nullable=True)
     __tablename__ = "semantic_memories"
 
     tenant_id: Mapped[UUID] = mapped_column(PGUUID, ForeignKey("tenants.id"))
