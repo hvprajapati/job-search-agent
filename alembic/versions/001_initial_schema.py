@@ -377,21 +377,12 @@ def upgrade() -> None:
 
     # ── HNSW indexes ──
     op.execute(
-        "CREATE INDEX idx_jobs_embedding ON job_postings "
-        "USING hnsw (job_embedding vector_cosine_ops) WITH (m = 16, ef_construction = 200)"
-    )
-    op.execute(
-        "CREATE INDEX idx_semantic_embedding ON semantic_memories "
-        "USING hnsw (embedding vector_cosine_ops) WITH (m = 16, ef_construction = 200)"
-    )
-    op.execute(
-        "CREATE INDEX idx_episodic_embedding ON episodic_memories "
+        "CREATE INDEX IF NOT EXISTS idx_episodic_embedding ON episodic_memories "
         "USING hnsw (embedding vector_cosine_ops) WITH (m = 12, ef_construction = 150)"
     )
-    op.execute(
-        "CREATE INDEX idx_kchunk_embedding ON knowledge_chunks "
-        "USING hnsw (embedding vector_cosine_ops) WITH (m = 16, ef_construction = 200)"
-    )
+    # NOTE: 3072d HNSW indexes (jobs, semantic, knowledge) deferred to V1
+    # Current pgvector version limits HNSW to 2000 dimensions.
+    # Sequential scan is acceptable until embeddings are populated.
 
 
 def downgrade() -> None:

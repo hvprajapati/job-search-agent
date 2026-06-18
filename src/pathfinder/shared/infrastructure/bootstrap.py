@@ -2,6 +2,7 @@
 import os
 import logging
 from pathlib import Path
+from pathfinder.shared.config import get_settings
 
 logger = logging.getLogger(__name__)
 
@@ -94,6 +95,5 @@ def bootstrap_jwt_keys():
         os.environ["JWT_PRIVATE_KEY"] = DEV_JWT_SECRET
         os.environ["JWT_PUBLIC_KEY"] = DEV_JWT_SECRET
         # Clear lru_cache so Settings re-reads from environment
-        from pathfinder.shared.config import get_settings
-        get_settings.cache_clear()
+        get_settings.cache_clear()  # get_settings imported at module level
         logger.info("JWT bootstrap complete — using HS256 with dev secret")

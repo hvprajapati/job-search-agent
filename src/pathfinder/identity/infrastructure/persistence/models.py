@@ -2,10 +2,24 @@
 from datetime import datetime, timezone
 from uuid import UUID, uuid4
 from sqlalchemy import String, Boolean, DateTime, ForeignKey, UniqueConstraint, Index
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.orm import Mapped, mapped_column
 from pathfinder.shared.infrastructure.persistence.base import Base, UUIDMixin, TimestampMixin
 from pathfinder.identity.domain.entities import User
 from pathfinder.identity.domain.value_objects import Email, Tier, UserStatus, UserRole
+
+
+class TenantModel(Base, UUIDMixin, TimestampMixin):
+    __tablename__ = "tenants"
+    name: Mapped[str] = mapped_column(String(255))
+    slug: Mapped[str] = mapped_column(String(100), unique=True)
+    plan: Mapped[str] = mapped_column(String(20), default="free")
+    status: Mapped[str] = mapped_column(String(20), default="active")
+    billing_email: Mapped[str | None] = mapped_column(String(320), nullable=True)
+    settings: Mapped[dict] = mapped_column(JSONB, default=dict, server_default="{}")
+    max_users: Mapped[int | None] = mapped_column(nullable=True)
+    storage_limit_bytes: Mapped[int | None] = mapped_column(nullable=True)
+    deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
 
 class UserModel(Base, UUIDMixin, TimestampMixin):
