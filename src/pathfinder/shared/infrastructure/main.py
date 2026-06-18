@@ -28,8 +28,20 @@ from pathfinder.shared.infrastructure.middleware.auth import AuthMiddleware
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     setup_logging()
+    from pathfinder.shared.infrastructure.bootstrap import bootstrap_jwt_keys, run_startup_checks
+    bootstrap_jwt_keys()
+    report = await run_startup_checks()
+    logger = __import__('logging').getLogger(__name__)
+    if not report.all_passed:
+        logger.warning("Startup checks failed — see /v1/health/startup for details")
+        for c in report.checks:
+            if not c["passed"]:
+                logger.warning(f"  {c['name']}: {c['message']}")
     from pathfinder.shared.infrastructure.tenant import ensure_default_tenant_exists
-    await ensure_default_tenant_exists()
+    try:
+        await ensure_default_tenant_exists()
+    except Exception as e:
+        logger.error(f"Default tenant check failed (migrations may not be applied): {e}")
     yield
     await close_database()
     await close_redis()
@@ -98,6 +110,12 @@ def create_app() -> FastAPI:
             status_code=200 if all_ok else 503,
             content={"status": "ok" if all_ok else "degraded", "db": db_ok, "redis": redis_ok},
         )
+
+    @app.get("/v1/health/startup", tags=["Health"])
+    async def startup_health():
+        from pathfinder.shared.infrastructure.bootstrap import run_startup_checks
+        report = await run_startup_checks()
+        return report.to_dict()
 
     @app.get("/v1/metrics", tags=["Observability"])
     async def metrics_endpoint():
