@@ -1,0 +1,224 @@
+{
+  "total": 31,
+  "passed": 22,
+  "failed": 9,
+  "endpoints": [
+    {
+      "method": "POST",
+      "path": "/v1/auth/register",
+      "status": 201,
+      "latency_ms": 78.00000000861473,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/v1/auth/login",
+      "status": 200,
+      "latency_ms": 92.99999999348074,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/v1/auth/logout",
+      "status": 422,
+      "latency_ms": 32.00000000651926,
+      "ok": false
+    },
+    {
+      "method": "GET",
+      "path": "/v1/profile",
+      "status": 200,
+      "latency_ms": 30.999999988125637,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/v1/profile/import/resume",
+      "status": 422,
+      "latency_ms": 31.000000017229468,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/resumes",
+      "status": 200,
+      "latency_ms": 30.999999988125637,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/v1/resumes",
+      "status": 201,
+      "latency_ms": 16.00000000325963,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/resumes/a24955b9-8927-4556-998b-dafc6ca3e791",
+      "status": 200,
+      "latency_ms": 30.999999988125637,
+      "ok": true
+    },
+    {
+      "method": "DELETE",
+      "path": "/v1/resumes/a24955b9-8927-4556-998b-dafc6ca3e791",
+      "status": 204,
+      "latency_ms": 32.00000000651926,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/jobs",
+      "status": 200,
+      "latency_ms": 46.000000002095476,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/jobs/search",
+      "status": 422,
+      "latency_ms": 32.00000000651926,
+      "ok": false
+    },
+    {
+      "method": "GET",
+      "path": "/v1/jobs/2e7fad28-ead3-42b6-9502-6f7510e9bdb8",
+      "status": 200,
+      "latency_ms": 30.999999988125637,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/v1/match/compute",
+      "status": 200,
+      "latency_ms": 31.000000017229468,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/match/history",
+      "status": 404,
+      "latency_ms": 15.999999974155799,
+      "ok": false
+    },
+    {
+      "method": "POST",
+      "path": "/v1/match/compare",
+      "status": 404,
+      "latency_ms": 0.0,
+      "ok": false
+    },
+    {
+      "method": "POST",
+      "path": "/v1/agent/execute",
+      "status": 200,
+      "latency_ms": 15.000000013969839,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/agent/executions",
+      "status": 500,
+      "latency_ms": 62.999999994644895,
+      "ok": false
+    },
+    {
+      "method": "POST",
+      "path": "/v1/knowledge/ingest/document",
+      "status": 422,
+      "latency_ms": 31.000000017229468,
+      "ok": false
+    },
+    {
+      "method": "POST",
+      "path": "/v1/knowledge/search",
+      "status": 200,
+      "latency_ms": 46.999999991385266,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/knowledge/documents",
+      "status": 200,
+      "latency_ms": 16.00000000325963,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/tailoring/versions",
+      "status": 200,
+      "latency_ms": 30.999999988125637,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/tailoring/compare",
+      "status": 200,
+      "latency_ms": 31.000000017229468,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/v1/tailoring/a5bd64b6-9307-42bc-9b56-1e4970732f52/accept",
+      "status": 200,
+      "latency_ms": 46.999999991385266,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/v1/tracking/events",
+      "status": 404,
+      "latency_ms": 30.999999988125637,
+      "ok": false
+    },
+    {
+      "method": "GET",
+      "path": "/v1/tracking/events",
+      "status": 404,
+      "latency_ms": 32.00000000651926,
+      "ok": false
+    },
+    {
+      "method": "GET",
+      "path": "/v1/tracking/funnel",
+      "status": 404,
+      "latency_ms": 0.0,
+      "ok": false
+    },
+    {
+      "method": "GET",
+      "path": "/v1/health/live",
+      "status": 200,
+      "latency_ms": 30.999999988125637,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/health/ready",
+      "status": 200,
+      "latency_ms": 15.000000013969839,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/health/startup",
+      "status": 200,
+      "latency_ms": 32.00000000651926,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/health",
+      "status": 200,
+      "latency_ms": 30.999999988125637,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/metrics",
+      "status": 200,
+      "latency_ms": 78.00000000861473,
+      "ok": true
+    }
+  ]
+}
