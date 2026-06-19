@@ -1,0 +1,464 @@
+{
+  "summary": {
+    "total": 50,
+    "empty": 0,
+    "crashes": 0,
+    "avg_latency_ms": 27.5,
+    "p95_latency_ms": 32.00000000651926,
+    "error_rate": 0.0
+  },
+  "latencies": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    14.999999984866008,
+    14.999999984866008,
+    15.000000013969839,
+    15.000000013969839,
+    15.000000013969839,
+    15.000000013969839,
+    15.000000013969839,
+    15.000000013969839,
+    15.999999974155799,
+    15.999999974155799,
+    15.999999974155799,
+    15.999999974155799,
+    16.00000000325963,
+    16.00000000325963,
+    16.00000000325963,
+    16.00000000325963,
+    16.00000000325963,
+    16.00000000325963,
+    16.00000000325963,
+    16.00000000325963,
+    16.00000000325963,
+    16.00000000325963,
+    16.00000000325963,
+    16.00000000325963,
+    16.00000000325963,
+    16.00000000325963,
+    16.00000000325963,
+    30.999999988125637,
+    30.999999988125637,
+    30.999999988125637,
+    30.999999988125637,
+    30.999999988125637,
+    30.999999988125637,
+    30.999999988125637,
+    30.999999988125637,
+    30.999999988125637,
+    31.000000017229468,
+    31.000000017229468,
+    31.000000017229468,
+    31.000000017229468,
+    31.000000017229468,
+    32.00000000651926,
+    32.00000000651926,
+    47.0000000204891,
+    405.99999998812564
+  ],
+  "requests": [
+    {
+      "id": 1,
+      "message": "Find me jobs",
+      "status": 200,
+      "latency_ms": 405.99999998812564,
+      "response_len": 182,
+      "intent": "general_question"
+    },
+    {
+      "id": 2,
+      "message": "What skills do I have?",
+      "status": 200,
+      "latency_ms": 16.00000000325963,
+      "response_len": 83,
+      "intent": "error"
+    },
+    {
+      "id": 3,
+      "message": "Hi there",
+      "status": 200,
+      "latency_ms": 15.000000013969839,
+      "response_len": 83,
+      "intent": "error"
+    },
+    {
+      "id": 4,
+      "message": "Tailor my resume",
+      "status": 200,
+      "latency_ms": 30.999999988125637,
+      "response_len": 83,
+      "intent": "error"
+    },
+    {
+      "id": 5,
+      "message": "What is my match score?",
+      "status": 200,
+      "latency_ms": 32.00000000651926,
+      "response_len": 83,
+      "intent": "error"
+    },
+    {
+      "id": 6,
+      "message": "Help me with career advice",
+      "status": 200,
+      "latency_ms": 30.999999988125637,
+      "response_len": 83,
+      "intent": "error"
+    },
+    {
+      "id": 7,
+      "message": "Show my profile",
+      "status": 200,
+      "latency_ms": 31.000000017229468,
+      "response_len": 83,
+      "intent": "error"
+    },
+    {
+      "id": 8,
+      "message": "Search for remote jobs",
+      "status": 200,
+      "latency_ms": 30.999999988125637,
+      "response_len": 83,
+      "intent": "error"
+    },
+    {
+      "id": 9,
+      "message": "Any recommendations?",
+      "status": 200,
+      "latency_ms": 16.00000000325963,
+      "response_len": 83,
+      "intent": "error"
+    },
+    {
+      "id": 10,
+      "message": "Hello",
+      "status": 200,
+      "latency_ms": 30.999999988125637,
+      "response_len": 83,
+      "intent": "error"
+    },
+    {
+      "id": 11,
+      "message": "Find me jobs",
+      "status": 200,
+      "latency_ms": 47.0000000204891,
+      "response_len": 83,
+      "intent": "error"
+    },
+    {
+      "id": 12,
+      "message": "What skills do I have?",
+      "status": 200,
+      "latency_ms": 15.999999974155799,
+      "response_len": 83,
+      "intent": "error"
+    },
+    {
+      "id": 13,
+      "message": "Hi there",
+      "status": 200,
+      "latency_ms": 31.000000017229468,
+      "response_len": 83,
+      "intent": "error"
+    },
+    {
+      "id": 14,
+      "message": "Tailor my resume",
+      "status": 200,
+      "latency_ms": 30.999999988125637,
+      "response_len": 83,
+      "intent": "error"
+    },
+    {
+      "id": 15,
+      "message": "What is my match score?",
+      "status": 200,
+      "latency_ms": 32.00000000651926,
+      "response_len": 83,
+      "intent": "error"
+    },
+    {
+      "id": 16,
+      "message": "Help me with career advice",
+      "status": 200,
+      "latency_ms": 30.999999988125637,
+      "response_len": 83,
+      "intent": "error"
+    },
+    {
+      "id": 17,
+      "message": "Show my profile",
+      "status": 200,
+      "latency_ms": 31.000000017229468,
+      "response_len": 83,
+      "intent": "error"
+    },
+    {
+      "id": 18,
+      "message": "Search for remote jobs",
+      "status": 200,
+      "latency_ms": 30.999999988125637,
+      "response_len": 83,
+      "intent": "error"
+    },
+    {
+      "id": 19,
+      "message": "Any recommendations?",
+      "status": 200,
+      "latency_ms": 16.00000000325963,
+      "response_len": 83,
+      "intent": "error"
+    },
+    {
+      "id": 20,
+      "message": "Hello",
+      "status": 429,
+      "latency_ms": 16.00000000325963,
+      "response_len": 0,
+      "intent": ""
+    },
+    {
+      "id": 21,
+      "message": "Find me jobs",
+      "status": 429,
+      "latency_ms": 0.0,
+      "response_len": 0,
+      "intent": ""
+    },
+    {
+      "id": 22,
+      "message": "What skills do I have?",
+      "status": 429,
+      "latency_ms": 0.0,
+      "response_len": 0,
+      "intent": ""
+    },
+    {
+      "id": 23,
+      "message": "Hi there",
+      "status": 429,
+      "latency_ms": 15.000000013969839,
+      "response_len": 0,
+      "intent": ""
+    },
+    {
+      "id": 24,
+      "message": "Tailor my resume",
+      "status": 429,
+      "latency_ms": 30.999999988125637,
+      "response_len": 0,
+      "intent": ""
+    },
+    {
+      "id": 25,
+      "message": "What is my match score?",
+      "status": 429,
+      "latency_ms": 16.00000000325963,
+      "response_len": 0,
+      "intent": ""
+    },
+    {
+      "id": 26,
+      "message": "Help me with career advice",
+      "status": 429,
+      "latency_ms": 0.0,
+      "response_len": 0,
+      "intent": ""
+    },
+    {
+      "id": 27,
+      "message": "Show my profile",
+      "status": 429,
+      "latency_ms": 16.00000000325963,
+      "response_len": 0,
+      "intent": ""
+    },
+    {
+      "id": 28,
+      "message": "Search for remote jobs",
+      "status": 429,
+      "latency_ms": 14.999999984866008,
+      "response_len": 0,
+      "intent": ""
+    },
+    {
+      "id": 29,
+      "message": "Any recommendations?",
+      "status": 429,
+      "latency_ms": 16.00000000325963,
+      "response_len": 0,
+      "intent": ""
+    },
+    {
+      "id": 30,
+      "message": "Hello",
+      "status": 429,
+      "latency_ms": 16.00000000325963,
+      "response_len": 0,
+      "intent": ""
+    },
+    {
+      "id": 31,
+      "message": "Find me jobs",
+      "status": 429,
+      "latency_ms": 15.000000013969839,
+      "response_len": 0,
+      "intent": ""
+    },
+    {
+      "id": 32,
+      "message": "What skills do I have?",
+      "status": 429,
+      "latency_ms": 15.999999974155799,
+      "response_len": 0,
+      "intent": ""
+    },
+    {
+      "id": 33,
+      "message": "Hi there",
+      "status": 429,
+      "latency_ms": 15.000000013969839,
+      "response_len": 0,
+      "intent": ""
+    },
+    {
+      "id": 34,
+      "message": "Tailor my resume",
+      "status": 429,
+      "latency_ms": 16.00000000325963,
+      "response_len": 0,
+      "intent": ""
+    },
+    {
+      "id": 35,
+      "message": "What is my match score?",
+      "status": 429,
+      "latency_ms": 0.0,
+      "response_len": 0,
+      "intent": ""
+    },
+    {
+      "id": 36,
+      "message": "Help me with career advice",
+      "status": 429,
+      "latency_ms": 16.00000000325963,
+      "response_len": 0,
+      "intent": ""
+    },
+    {
+      "id": 37,
+      "message": "Show my profile",
+      "status": 429,
+      "latency_ms": 14.999999984866008,
+      "response_len": 0,
+      "intent": ""
+    },
+    {
+      "id": 38,
+      "message": "Search for remote jobs",
+      "status": 429,
+      "latency_ms": 0.0,
+      "response_len": 0,
+      "intent": ""
+    },
+    {
+      "id": 39,
+      "message": "Any recommendations?",
+      "status": 429,
+      "latency_ms": 16.00000000325963,
+      "response_len": 0,
+      "intent": ""
+    },
+    {
+      "id": 40,
+      "message": "Hello",
+      "status": 429,
+      "latency_ms": 16.00000000325963,
+      "response_len": 0,
+      "intent": ""
+    },
+    {
+      "id": 41,
+      "message": "Find me jobs",
+      "status": 429,
+      "latency_ms": 15.000000013969839,
+      "response_len": 0,
+      "intent": ""
+    },
+    {
+      "id": 42,
+      "message": "What skills do I have?",
+      "status": 429,
+      "latency_ms": 15.999999974155799,
+      "response_len": 0,
+      "intent": ""
+    },
+    {
+      "id": 43,
+      "message": "Hi there",
+      "status": 429,
+      "latency_ms": 31.000000017229468,
+      "response_len": 0,
+      "intent": ""
+    },
+    {
+      "id": 44,
+      "message": "Tailor my resume",
+      "status": 429,
+      "latency_ms": 16.00000000325963,
+      "response_len": 0,
+      "intent": ""
+    },
+    {
+      "id": 45,
+      "message": "What is my match score?",
+      "status": 429,
+      "latency_ms": 30.999999988125637,
+      "response_len": 0,
+      "intent": ""
+    },
+    {
+      "id": 46,
+      "message": "Help me with career advice",
+      "status": 429,
+      "latency_ms": 16.00000000325963,
+      "response_len": 0,
+      "intent": ""
+    },
+    {
+      "id": 47,
+      "message": "Show my profile",
+      "status": 429,
+      "latency_ms": 15.000000013969839,
+      "response_len": 0,
+      "intent": ""
+    },
+    {
+      "id": 48,
+      "message": "Search for remote jobs",
+      "status": 429,
+      "latency_ms": 15.999999974155799,
+      "response_len": 0,
+      "intent": ""
+    },
+    {
+      "id": 49,
+      "message": "Any recommendations?",
+      "status": 429,
+      "latency_ms": 31.000000017229468,
+      "response_len": 0,
+      "intent": ""
+    },
+    {
+      "id": 50,
+      "message": "Hello",
+      "status": 429,
+      "latency_ms": 16.00000000325963,
+      "response_len": 0,
+      "intent": ""
+    }
+  ]
+}
