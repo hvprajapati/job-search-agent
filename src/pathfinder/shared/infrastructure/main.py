@@ -19,6 +19,7 @@ from pathfinder.jobs.presentation.matching_router import router as matching_rout
 from pathfinder.agent.presentation.router import router as agent_router
 from pathfinder.knowledge.presentation.router import router as knowledge_router
 from pathfinder.tracking.presentation.router import router as tracking_router
+from pathfinder.admin.presentation.router import router as admin_router
 from pathfinder.shared.infrastructure.middleware.request_id import RequestIdMiddleware
 from pathfinder.shared.infrastructure.middleware.security_headers import SecurityHeadersMiddleware
 from pathfinder.shared.infrastructure.middleware.rate_limit import RateLimitMiddleware
@@ -100,6 +101,7 @@ def create_app() -> FastAPI:
     app.include_router(agent_router)
     app.include_router(knowledge_router)
     app.include_router(tracking_router)
+    app.include_router(admin_router)
 
     @app.get("/v1/health/live", tags=["Health"])
     async def health_live():

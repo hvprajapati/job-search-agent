@@ -36,6 +36,7 @@ RUN groupadd -r pathfinder && useradd -r -g pathfinder pathfinder
 COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
 COPY --from=builder /usr/local/bin /usr/local/bin
 COPY src/ ./src/
+COPY scripts/ ./scripts/
 COPY alembic.ini .
 COPY alembic/ ./alembic/
 RUN chown -R pathfinder:pathfinder /app
