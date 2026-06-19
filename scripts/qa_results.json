@@ -1,0 +1,899 @@
+[
+  {
+    "id": 1,
+    "subsystem": "Auth",
+    "name": "Login with correct credentials",
+    "inputs": "email=qa-user_a-1781890114@qa.pathfinder.dev, password=QATest123!",
+    "expected": "200 OK, returns access_token + refresh_token",
+    "actual": "OK",
+    "status": "PASS",
+    "severity": "Critical",
+    "repro_steps": "",
+    "details": {
+      "details": {
+        "status": 200
+      }
+    }
+  },
+  {
+    "id": 2,
+    "subsystem": "Auth",
+    "name": "Login with wrong password",
+    "inputs": "email=qa-user_a-1781890114@qa.pathfinder.dev, password=wrong",
+    "expected": "401 Unauthorized, error message",
+    "actual": "Status 400, expected 401",
+    "status": "BUG",
+    "severity": "Critical",
+    "repro_steps": "",
+    "details": {
+      "details": {
+        "status": 400,
+        "error": {
+          "code": "INVALIDCREDENTIALSERROR",
+          "message": "Invalid email or password",
+          "request_id": "a3f2dcd4-27f8-49c0-9703-cf189bcaf811"
+        }
+      }
+    }
+  },
+  {
+    "id": 3,
+    "subsystem": "Auth",
+    "name": "Login with non-existent email",
+    "inputs": "email=noexist@nowhere.com",
+    "expected": "401 Unauthorized",
+    "actual": "Status 400, expected 401",
+    "status": "BUG",
+    "severity": "Major",
+    "repro_steps": "",
+    "details": {
+      "details": {
+        "status": 400
+      }
+    }
+  },
+  {
+    "id": 4,
+    "subsystem": "Auth",
+    "name": "Register with duplicate email",
+    "inputs": "email=qa-user_a-1781890114@qa.pathfinder.dev (already registered)",
+    "expected": "409 Conflict or 400, clear error message",
+    "actual": "Status 400: {'error': {'code': 'EMAILALREADYEXISTSERROR', 'message': 'Email already registered: qa-user_a-1781890114@qa.pathfinder.d",
+    "status": "PASS",
+    "severity": "Major",
+    "repro_steps": "",
+    "details": {
+      "details": {
+        "status": 400
+      }
+    }
+  },
+  {
+    "id": 5,
+    "subsystem": "Auth",
+    "name": "Register with very weak password",
+    "inputs": "password='a' (1 char)",
+    "expected": "422 Validation error rejecting weak password",
+    "actual": "Status 429: {'error': {'code': 'RATE_LIMIT_EXCEEDED', 'message': 'Too many requests'}}",
+    "status": "BUG",
+    "severity": "Minor",
+    "repro_steps": "",
+    "details": {
+      "details": {
+        "status": 429
+      }
+    }
+  },
+  {
+    "id": 6,
+    "subsystem": "Auth",
+    "name": "Register with invalid email format",
+    "inputs": "email='notanemail'",
+    "expected": "422 Validation error for invalid email",
+    "actual": "Status 429: {'error': {'code': 'RATE_LIMIT_EXCEEDED', 'message': 'Too many requests'}}",
+    "status": "BUG",
+    "severity": "Minor",
+    "repro_steps": "",
+    "details": {
+      "details": {
+        "status": 429
+      }
+    }
+  },
+  {
+    "id": 7,
+    "subsystem": "Auth",
+    "name": "Access protected endpoint with invalid token",
+    "inputs": "Authorization: Bearer invalid_token_xxx",
+    "expected": "401 Unauthorized",
+    "actual": "Status 401",
+    "status": "PASS",
+    "severity": "Critical",
+    "repro_steps": "",
+    "details": {
+      "details": {
+        "status": 401
+      }
+    }
+  },
+  {
+    "id": 8,
+    "subsystem": "Auth",
+    "name": "Access protected endpoint without token",
+    "inputs": "No Authorization header",
+    "expected": "401 Unauthorized",
+    "actual": "Status 401",
+    "status": "PASS",
+    "severity": "Critical",
+    "repro_steps": "",
+    "details": {
+      "details": {
+        "status": 401
+      }
+    }
+  },
+  {
+    "id": 9,
+    "subsystem": "Resume",
+    "name": "Upload valid TXT resume",
+    "inputs": "TXT file with skills, experience, education sections",
+    "expected": "200 OK, skills_extracted > 0, experiences_extracted > 0",
+    "actual": "skills_extracted=5, experiences=1",
+    "status": "PASS",
+    "severity": "Critical",
+    "repro_steps": "POST /v1/profile/import/resume with valid TXT resume",
+    "details": {
+      "details": {
+        "status": 200,
+        "skills_count": 5,
+        "parsed_fields": [
+          "full_name",
+          "headline",
+          "email",
+          "phone",
+          "location",
+          "summary",
+          "skills",
+          "work_experiences",
+          "education"
+        ]
+      }
+    }
+  },
+  {
+    "id": 10,
+    "subsystem": "Resume",
+    "name": "Upload empty file",
+    "inputs": "Zero-byte file",
+    "expected": "4xx error, clear message about empty file",
+    "actual": "Status 500: Internal Server Error",
+    "status": "BUG",
+    "severity": "Minor",
+    "repro_steps": "",
+    "details": {
+      "details": {
+        "status": 500
+      }
+    }
+  },
+  {
+    "id": 11,
+    "subsystem": "Resume",
+    "name": "Upload file below minimum content length",
+    "inputs": "File with < 50 chars of content",
+    "expected": "4xx error about insufficient content",
+    "actual": "Status 500: Internal Server Error",
+    "status": "BUG",
+    "severity": "Minor",
+    "repro_steps": "",
+    "details": {
+      "details": {
+        "status": 500
+      }
+    }
+  },
+  {
+    "id": 12,
+    "subsystem": "Resume",
+    "name": "Upload unsupported file type (PNG image)",
+    "inputs": "image/png file",
+    "expected": "4xx error about unsupported file type",
+    "actual": "Status 500: Internal Server Error",
+    "status": "BUG",
+    "severity": "Minor",
+    "repro_steps": "",
+    "details": {
+      "details": {
+        "status": 500
+      }
+    }
+  },
+  {
+    "id": 13,
+    "subsystem": "Resume",
+    "name": "Skills extraction on detailed resume (15+ skills)",
+    "inputs": "Detailed data engineer resume with 17+ unique skills",
+    "expected": "skills_extracted >= 12 (got 16)",
+    "actual": "skills_extracted=16",
+    "status": "PASS",
+    "severity": "Major",
+    "repro_steps": "",
+    "details": {
+      "details": {
+        "status": 200,
+        "skills_count": 16
+      }
+    }
+  },
+  {
+    "id": 14,
+    "subsystem": "Resume",
+    "name": "Profile correctly populated after resume upload",
+    "inputs": "Uploaded detailed resume, then GET /v1/profile",
+    "expected": "full_name set, skills > 0, work_experiences > 0",
+    "actual": "name=True, skills=16, exp=2",
+    "status": "PASS",
+    "severity": "Critical",
+    "repro_steps": "",
+    "details": {
+      "details": {
+        "full_name": "Jane Smith",
+        "skills_count": 16,
+        "experiences_count": 2
+      }
+    }
+  },
+  {
+    "id": 15,
+    "subsystem": "Resume",
+    "name": "Merge strategy preserves existing profile data",
+    "inputs": "merge_strategy=merge with new skills only",
+    "expected": "200 OK, existing data preserved",
+    "actual": "Status 500",
+    "status": "BUG",
+    "severity": "Minor",
+    "repro_steps": "",
+    "details": {
+      "details": {
+        "status": 500,
+        "skills_extracted": 0
+      }
+    }
+  },
+  {
+    "id": 16,
+    "subsystem": "Resume",
+    "name": "Skills from prose-format resume (no skills section)",
+    "inputs": "Resume with skills embedded in paragraph text, no SKILLS heading",
+    "expected": "skills_extracted >= 5 (got 10)",
+    "actual": "skills_extracted=10",
+    "status": "PASS",
+    "severity": "Major",
+    "repro_steps": "",
+    "details": {
+      "details": {
+        "status": 200,
+        "skills_count": 10
+      }
+    }
+  },
+  {
+    "id": 17,
+    "subsystem": "Profile",
+    "name": "Get own profile",
+    "inputs": "GET /v1/profile with valid token",
+    "expected": "200 OK with profile data including skills array",
+    "actual": "Status 200",
+    "status": "PASS",
+    "severity": "Critical",
+    "repro_steps": "",
+    "details": {
+      "details": {
+        "has_skills": true
+      }
+    }
+  },
+  {
+    "id": 18,
+    "subsystem": "Profile",
+    "name": "Profile skills have correct data types",
+    "inputs": "GET /v1/profile",
+    "expected": "Each skill has name:str, proficiency:str (one of beginner/intermediate/advanced/expert)",
+    "actual": "Skills with bad types: 0/10",
+    "status": "PASS",
+    "severity": "Major",
+    "repro_steps": "",
+    "details": {
+      "details": {
+        "skills_sample": [
+          {
+            "name": "Python",
+            "proficiency": "expert",
+            "years": 0.0
+          },
+          {
+            "name": "Go",
+            "proficiency": "expert",
+            "years": 0.0
+          },
+          {
+            "name": "PostgreSQL",
+            "proficiency": "advanced",
+            "years": 0.0
+          }
+        ],
+        "bad_types": []
+      }
+    }
+  },
+  {
+    "id": 19,
+    "subsystem": "Profile",
+    "name": "Profile work_experiences have required fields",
+    "inputs": "GET /v1/profile",
+    "expected": "Each experience has company:str (non-empty), title:str",
+    "actual": "Exp count=0, company_ok=True, title_ok=True",
+    "status": "PASS",
+    "severity": "Major",
+    "repro_steps": "",
+    "details": {
+      "details": {
+        "experiences_sample": []
+      }
+    }
+  },
+  {
+    "id": 20,
+    "subsystem": "Profile",
+    "name": "Profile returns data after resume import",
+    "inputs": "GET /v1/profile for user who uploaded resume",
+    "expected": "200 OK with profile data",
+    "actual": "OK",
+    "status": "PASS",
+    "severity": "Minor",
+    "repro_steps": "",
+    "details": {
+      "details": {
+        "status": 200
+      }
+    }
+  },
+  {
+    "id": 21,
+    "subsystem": "Profile",
+    "name": "Profile education extracted from resume",
+    "inputs": "GET /v1/profile after data engineer resume upload",
+    "expected": "education array has at least 1 entry with institution, degree, field",
+    "actual": "Education count=2",
+    "status": "PASS",
+    "severity": "Major",
+    "repro_steps": "",
+    "details": {
+      "details": {
+        "education_sample": [
+          {
+            "institution": "Carnegie Mellon",
+            "degree": "MS",
+            "field": "Information Systems"
+          },
+          {
+            "institution": "University of Washington",
+            "degree": "BS",
+            "field": "Computer Science"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": 22,
+    "subsystem": "Job Search",
+    "name": "List all jobs with default params",
+    "inputs": "GET /v1/jobs",
+    "expected": "200 OK, returns array of jobs with meta.count",
+    "actual": "Jobs found: 2",
+    "status": "PASS",
+    "severity": "Critical",
+    "repro_steps": "",
+    "details": {
+      "details": {
+        "count": 2
+      }
+    }
+  },
+  {
+    "id": 23,
+    "subsystem": "Job Search",
+    "name": "Job listing has required fields",
+    "inputs": "GET /v1/jobs, inspect first result",
+    "expected": "Each job has job_id, title, description fields",
+    "actual": "First job fields: ['job_id', 'title', 'company', 'location', 'remote_policy', 'description_summary', 'salary_range', 'tech_stack', 'seniority', 'first_seen_at']",
+    "status": "PASS",
+    "severity": "Major",
+    "repro_steps": "",
+    "details": {
+      "details": {
+        "sample_job": {
+          "job_id": "24b2d86b-8f7d-46cf-a45f-3de35c3dd5d7",
+          "title": "Senior ML Engineer",
+          "company": "",
+          "location": "",
+          "remote_policy": "remote",
+          "description_summary": "",
+          "salary_range": "None",
+          "tech_stack": "['Python', 'PyTorch', 'Kubernetes', 'Docker']",
+          "seniority": "senior",
+          "first_seen_at": "2026-06-19T11:53:43.739070+00:00"
+        }
+      }
+    }
+  },
+  {
+    "id": 24,
+    "subsystem": "Job Search",
+    "name": "Search jobs with keyword query",
+    "inputs": "GET /v1/jobs?query=Machine Learning",
+    "expected": "Results filtered to ML-related jobs, count <= total",
+    "actual": "ML jobs found: 2",
+    "status": "PASS",
+    "severity": "Minor",
+    "repro_steps": "",
+    "details": {
+      "details": {
+        "ml_count": 2
+      }
+    }
+  },
+  {
+    "id": 25,
+    "subsystem": "Job Search",
+    "name": "Job search pagination (limit=1, offset=1)",
+    "inputs": "GET /v1/jobs?limit=1&offset=1",
+    "expected": "Returns 1 result (the second job), meta includes count",
+    "actual": "Returned: 1 jobs",
+    "status": "PASS",
+    "severity": "Minor",
+    "repro_steps": "",
+    "details": {
+      "details": {
+        "limit": 1,
+        "returned": 1,
+        "total": 2
+      }
+    }
+  },
+  {
+    "id": 26,
+    "subsystem": "Job Search",
+    "name": "Get single job by ID",
+    "inputs": "GET /v1/jobs/24b2d86b...",
+    "expected": "200 OK, returns full job details with required_skills, nice_to_have",
+    "actual": "OK",
+    "status": "PASS",
+    "severity": "Major",
+    "repro_steps": "",
+    "details": {
+      "details": {
+        "job_title": "Senior ML Engineer"
+      }
+    }
+  },
+  {
+    "id": 27,
+    "subsystem": "Job Search",
+    "name": "Get job with non-existent UUID",
+    "inputs": "GET /v1/jobs/00000000-0000-0000-0000-000000000000",
+    "expected": "404 Not Found",
+    "actual": "Status 400, expected 404",
+    "status": "BUG",
+    "severity": "Minor",
+    "repro_steps": "",
+    "details": {
+      "details": {
+        "status": 400
+      }
+    }
+  },
+  {
+    "id": 28,
+    "subsystem": "Matching",
+    "name": "Compute match score for existing job",
+    "inputs": "POST /v1/match/compute?job_id=24b2d86b-8f7d-46cf-a45f-3de35c3dd5d7",
+    "expected": "200 OK, overall_score between 0-100, dimensions object with 4-6 keys",
+    "actual": "Score=44.1/100, dimensions=6",
+    "status": "PASS",
+    "severity": "Critical",
+    "repro_steps": "",
+    "details": {
+      "details": {
+        "overall_score": 44.1,
+        "dimensions": [
+          "skills",
+          "experience",
+          "education",
+          "location",
+          "preference",
+          "culture"
+        ]
+      }
+    }
+  },
+  {
+    "id": 29,
+    "subsystem": "Matching",
+    "name": "Match response includes all 6 scoring dimensions",
+    "inputs": "POST /v1/match/compute for job 24b2d86b",
+    "expected": "All 6 dimensions: skills, experience, education, location, preference, culture",
+    "actual": "All 6 present",
+    "status": "PASS",
+    "severity": "Major",
+    "repro_steps": "",
+    "details": {
+      "details": {
+        "missing_dimensions": [],
+        "present": [
+          "skills",
+          "experience",
+          "education",
+          "location",
+          "preference",
+          "culture"
+        ]
+      }
+    }
+  },
+  {
+    "id": 30,
+    "subsystem": "Matching",
+    "name": "Each dimension score is in valid range 0-100",
+    "inputs": "Match dimensions: ['skills', 'experience', 'education', 'location', 'preference', 'culture']",
+    "expected": "Every dimension.score between 0 and 100 inclusive",
+    "actual": "All valid",
+    "status": "PASS",
+    "severity": "Major",
+    "repro_steps": "",
+    "details": {
+      "details": {
+        "dim_scores": {
+          "skills": 60.5,
+          "experience": 0.0,
+          "education": 50.0,
+          "location": 85.0,
+          "preference": 50.0,
+          "culture": 50.0
+        }
+      }
+    }
+  },
+  {
+    "id": 31,
+    "subsystem": "Matching",
+    "name": "Match score for non-existent job",
+    "inputs": "POST /v1/match/compute?job_id=00000000-0000-0000-0000-000000000000",
+    "expected": "404 Not Found",
+    "actual": "Status 400, expected 404",
+    "status": "BUG",
+    "severity": "Minor",
+    "repro_steps": "",
+    "details": {
+      "details": {
+        "status": 400
+      }
+    }
+  },
+  {
+    "id": 32,
+    "subsystem": "Matching",
+    "name": "Match score for different user (data engineer)",
+    "inputs": "POST /v1/match/compute for user B (data skills) on same job",
+    "expected": "Different score from user A, dimension scores reflect different skill match",
+    "actual": "User B score=45.8/100",
+    "status": "PASS",
+    "severity": "Minor",
+    "repro_steps": "",
+    "details": {
+      "details": {
+        "user_a_score": 44.1,
+        "user_b_score": 45.8
+      }
+    }
+  },
+  {
+    "id": 33,
+    "subsystem": "Matching",
+    "name": "User with profile can receive match score",
+    "inputs": "User A after resume upload \u2192 match compute",
+    "expected": "Non-zero match score returned successfully",
+    "actual": "Skills count: 10",
+    "status": "PASS",
+    "severity": "Minor",
+    "repro_steps": "",
+    "details": {
+      "details": {
+        "status": 200
+      }
+    }
+  },
+  {
+    "id": 34,
+    "subsystem": "Agent",
+    "name": "Ask agent to find jobs",
+    "inputs": "message='Find me software engineering jobs'",
+    "expected": "200 OK, agent responds with job search action or suggestions",
+    "actual": "Response (187 chars): Hi Tom! \nI see your skills include Python, Go, PostgreSQL, Redis, Docker. \nI can help you find jobs, check your match for specific roles, or tailor yo",
+    "status": "PASS",
+    "severity": "Major",
+    "repro_steps": "",
+    "details": {
+      "details": {
+        "intent": "general_question",
+        "response_length": 187,
+        "latency_ms": 312
+      }
+    }
+  },
+  {
+    "id": 35,
+    "subsystem": "Agent",
+    "name": "Ask agent about own profile skills",
+    "inputs": "message='What skills do I have on my profile?'",
+    "expected": "Agent references user's skills from profile context",
+    "actual": "Response (0 chars): ",
+    "status": "BUG",
+    "severity": "Major",
+    "repro_steps": "",
+    "details": {
+      "details": {
+        "mentions_profile_skills": false,
+        "intent": ""
+      }
+    }
+  },
+  {
+    "id": 36,
+    "subsystem": "Agent",
+    "name": "Ask agent for match score",
+    "inputs": "message='What is my match score for the first job?'",
+    "expected": "Agent responds coherently about matching (even if score not shown)",
+    "actual": "Response (0 chars): ",
+    "status": "BUG",
+    "severity": "Minor",
+    "repro_steps": "",
+    "details": {
+      "details": {
+        "intent": ""
+      }
+    }
+  },
+  {
+    "id": 37,
+    "subsystem": "Agent",
+    "name": "Agent handles greeting/ambiguous input",
+    "inputs": "message='Hi'",
+    "expected": "Agent responds with greeting and offers help",
+    "actual": "Response (0 chars): ",
+    "status": "BUG",
+    "severity": "Minor",
+    "repro_steps": "",
+    "details": {
+      "details": {
+        "intent": ""
+      }
+    }
+  },
+  {
+    "id": 38,
+    "subsystem": "Agent",
+    "name": "Agent response under 30 seconds",
+    "inputs": "POST /v1/agent/execute with simple query",
+    "expected": "Response received in < 30000ms",
+    "actual": "Response time: 312ms",
+    "status": "PASS",
+    "severity": "Major",
+    "repro_steps": "",
+    "details": {
+      "details": {
+        "latency_ms": 312
+      }
+    }
+  },
+  {
+    "id": 39,
+    "subsystem": "Agent",
+    "name": "Agent handles nonsense/gibberish input",
+    "inputs": "message='asdfghjkl qwertyuiop zxcvbnm'",
+    "expected": "Agent responds gracefully (asks for clarification or offers help)",
+    "actual": "Response (0 chars): ",
+    "status": "BUG",
+    "severity": "Minor",
+    "repro_steps": "",
+    "details": {
+      "details": {
+        "intent": ""
+      }
+    }
+  },
+  {
+    "id": 40,
+    "subsystem": "Agent",
+    "name": "Ask agent to tailor resume",
+    "inputs": "message='Can you tailor my resume for the ML Engineer job?'",
+    "expected": "Agent responds coherently, acknowledges tailoring request",
+    "actual": "Response (0 chars): ",
+    "status": "BUG",
+    "severity": "Minor",
+    "repro_steps": "",
+    "details": {
+      "details": {
+        "intent": ""
+      }
+    }
+  },
+  {
+    "id": 41,
+    "subsystem": "Knowledge",
+    "name": "Ingest knowledge document",
+    "inputs": "Upload 8-point Kubernetes best practices document",
+    "expected": "200 OK, chunks_created >= 1",
+    "actual": "Chunks created: 1",
+    "status": "PASS",
+    "severity": "Critical",
+    "repro_steps": "",
+    "details": {
+      "details": {
+        "chunks": 1
+      }
+    }
+  },
+  {
+    "id": 42,
+    "subsystem": "Knowledge",
+    "name": "Search knowledge with relevant query",
+    "inputs": "query='Kubernetes security RBAC'",
+    "expected": "Returns results with score >= 0.5, content contains relevant terms",
+    "actual": "Results: 1, top score: 1.0",
+    "status": "PASS",
+    "severity": "Critical",
+    "repro_steps": "",
+    "details": {
+      "details": {
+        "result_count": 1,
+        "top_score": 1.0
+      }
+    }
+  },
+  {
+    "id": 43,
+    "subsystem": "Knowledge",
+    "name": "Search knowledge with completely unrelated query",
+    "inputs": "query='quantum physics string theory wormholes'",
+    "expected": "Returns results but with low relevance scores",
+    "actual": "Results: 1, top score: 0.7",
+    "status": "PASS",
+    "severity": "Minor",
+    "repro_steps": "",
+    "details": {
+      "details": {
+        "top_score": 0.7
+      }
+    }
+  },
+  {
+    "id": 44,
+    "subsystem": "Knowledge",
+    "name": "Ingest empty knowledge document",
+    "inputs": "Zero-byte file upload to knowledge ingest",
+    "expected": "4xx error with clear message about empty content",
+    "actual": "Status 422: {\"error\":{\"code\":\"VALIDATIONERROR\",\"message\":\"Could not extract meaningful text from file\",\"request_id\":\"6f47ed7f-c8c5-4cbc-862d-d66d1e559ce9\"}}",
+    "status": "PASS",
+    "severity": "Minor",
+    "repro_steps": "",
+    "details": {
+      "details": {
+        "status": 422
+      }
+    }
+  },
+  {
+    "id": 45,
+    "subsystem": "Knowledge",
+    "name": "Knowledge search returns semantically relevant content",
+    "inputs": "query containing exact document terms: 'resource limits readiness probes namespaces'",
+    "expected": "Top result contains at least one of: resource, limit, probe, namespace",
+    "actual": "Results: 1, specific_match=True",
+    "status": "PASS",
+    "severity": "Major",
+    "repro_steps": "",
+    "details": {
+      "details": {
+        "result_count": 1
+      }
+    }
+  },
+  {
+    "id": 46,
+    "subsystem": "Tailoring",
+    "name": "Tailor resume with moderate strategy",
+    "inputs": "POST /v1/tailoring/tailor strategy=moderate",
+    "expected": "200 OK, returns tailored_resume_id, diffs, keyword_coverage, factuality_score",
+    "actual": "OK",
+    "status": "PASS",
+    "severity": "Critical",
+    "repro_steps": "",
+    "details": {
+      "details": {
+        "factuality": 0.7,
+        "ats_score": 75,
+        "keyword_before": 0.31,
+        "keyword_after": 0.81
+      }
+    }
+  },
+  {
+    "id": 47,
+    "subsystem": "Tailoring",
+    "name": "Tailor resume with conservative strategy",
+    "inputs": "strategy=conservative",
+    "expected": "200 OK, fewer/more cautious changes than moderate",
+    "actual": "OK",
+    "status": "PASS",
+    "severity": "Minor",
+    "repro_steps": "",
+    "details": {
+      "details": {
+        "keyword_before": 0.31,
+        "keyword_after": 0.81
+      }
+    }
+  },
+  {
+    "id": 48,
+    "subsystem": "Tailoring",
+    "name": "Tailor resume with aggressive strategy",
+    "inputs": "strategy=aggressive",
+    "expected": "200 OK, more keyword optimization",
+    "actual": "OK",
+    "status": "PASS",
+    "severity": "Minor",
+    "repro_steps": "",
+    "details": {
+      "details": {
+        "keyword_before": 0.31,
+        "keyword_after": 0.88
+      }
+    }
+  },
+  {
+    "id": 49,
+    "subsystem": "Tailoring",
+    "name": "Tailor with non-existent base resume",
+    "inputs": "base_resume_id=00000000-... (doesn't exist)",
+    "expected": "404 Not Found",
+    "actual": "Status 400, expected 404",
+    "status": "BUG",
+    "severity": "Minor",
+    "repro_steps": "",
+    "details": {
+      "details": {
+        "status": 400
+      }
+    }
+  },
+  {
+    "id": 50,
+    "subsystem": "Tailoring",
+    "name": "Factuality verification produces score and violations",
+    "inputs": "POST /v1/tailoring/tailor",
+    "expected": "factuality_score between 0.0-1.0, violations list (may be empty)",
+    "actual": "factuality_score=0.7, violations=3",
+    "status": "PASS",
+    "severity": "Major",
+    "repro_steps": "",
+    "details": {
+      "details": {
+        "factuality_score": 0.7,
+        "violations_count": 3
+      }
+    }
+  }
+]
