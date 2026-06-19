@@ -59,36 +59,54 @@ async def import_resume(
 ):
     """Upload and parse a resume file to populate profile."""
     from pathfinder.profile.infrastructure.llm.deepseek_client import DeepSeekClient
+    from pathfinder.shared.domain.exceptions import ValidationError
     import json, io, PyPDF2
 
     file_bytes = await file.read()
+
+    # ── Phase 0: Input validation (before any extraction) ──
+    if len(file_bytes) == 0:
+        raise ValidationError("File is empty. Please upload a valid resume.", field="file")
     if len(file_bytes) > 10 * 1024 * 1024:
-        from pathfinder.shared.domain.exceptions import ValidationError
         raise ValidationError("File exceeds 10MB limit", field="file")
 
-    # Extract text
-    text = ""
     content_type = file.content_type or ""
+    supported = ("pdf" in content_type or "docx" in content_type or "word" in content_type or
+                 "text/plain" in content_type or content_type == "application/octet-stream")
+    if not supported and content_type:
+        raise ValidationError(
+            f"Unsupported file type: {content_type}. Please upload PDF, DOCX, or TXT.",
+            field="file",
+        )
+
+    # ── Phase 1: Extract text ──
+    text = ""
     if "pdf" in content_type:
         try:
             reader = PyPDF2.PdfReader(io.BytesIO(file_bytes))
             text = "\n\n".join(p.extract_text() or "" for p in reader.pages)
         except Exception:
-            raise ValidationError("Could not read PDF file", field="file")
+            raise ValidationError("Could not read PDF file. It may be corrupted or password-protected.", field="file")
     elif "docx" in content_type or "word" in content_type:
         try:
             from docx import Document
             doc = Document(io.BytesIO(file_bytes))
             text = "\n".join(p.text for p in doc.paragraphs)
         except Exception:
-            raise ValidationError("Could not read DOCX file", field="file")
-    elif "text/plain" in content_type:
-        text = file_bytes.decode("utf-8", errors="ignore")
+            raise ValidationError("Could not read DOCX file. It may be corrupted.", field="file")
     else:
-        raise ValidationError("Unsupported file type. Use PDF, DOCX, or TXT.", field="file")
+        # text/plain or unknown — try UTF-8 decode
+        try:
+            text = file_bytes.decode("utf-8", errors="ignore")
+        except Exception:
+            raise ValidationError("Could not decode file content as text.", field="file")
 
-    if not text or len(text.strip()) < 50:
-        raise ValidationError("Could not extract meaningful text from file", field="file")
+    # ── Phase 2: Content quality check ──
+    if not text or len(text.strip()) < 20:
+        raise ValidationError(
+            "Could not extract meaningful text from file. Resumes must contain at least 20 characters.",
+            field="file",
+        )
 
     # Parse with LLM (gracefully degrades if unavailable)
     llm = DeepSeekClient()
@@ -325,6 +343,49 @@ async def import_resume(
             "skills": 0.7 if parsed.get("skills") else 0.0,
             "experience": 0.7 if parsed.get("work_experiences") else 0.0,
             "education": 0.7 if parsed.get("education") else 0.0,
+        }
+    elif merge_strategy == "merge":
+        # Merge: only fill in fields that are empty in existing profile
+        if not profile.full_name:
+            profile.full_name = parsed.get("full_name", "")
+        if not profile.headline:
+            profile.headline = parsed.get("headline", "")
+        if not profile.email:
+            profile.email = parsed.get("email", "")
+        if not profile.phone:
+            profile.phone = parsed.get("phone", "")
+        if not profile.location:
+            profile.location = parsed.get("location")
+        if not profile.summary:
+            profile.summary = parsed.get("summary", "")
+
+        # Merge skills: add new ones not already present (dedup by name)
+        existing_skill_names = {s.name.lower() for s in profile.skills}
+        new_skills = _parse_skills(parsed.get("skills", []))
+        for skill in new_skills:
+            if skill.name.lower() not in existing_skill_names:
+                profile.skills.append(skill)
+
+        # Merge experiences: add new ones not already present (dedup by company+title)
+        existing_exp_keys = {(e.company.lower(), e.title.lower()) for e in profile.work_experiences}
+        new_exps = _parse_experiences(parsed.get("work_experiences", []))
+        for exp in new_exps:
+            if (exp.company.lower(), exp.title.lower()) not in existing_exp_keys:
+                profile.work_experiences.append(exp)
+
+        # Merge education: add new ones not already present (dedup by institution+degree)
+        existing_edu_keys = {(e.institution.lower(), e.degree.lower()) for e in profile.education}
+        new_edu = _parse_education(parsed.get("education", []))
+        for edu in new_edu:
+            if (edu.institution.lower(), edu.degree.lower()) not in existing_edu_keys:
+                profile.education.append(edu)
+
+        # Update confidence for fields that were filled
+        profile.parsing_confidence = {
+            **(profile.parsing_confidence or {}),
+            "skills": 0.7 if parsed.get("skills") else profile.parsing_confidence.get("skills", 0),
+            "experience": 0.7 if parsed.get("work_experiences") else profile.parsing_confidence.get("experience", 0),
+            "education": 0.7 if parsed.get("education") else profile.parsing_confidence.get("education", 0),
         }
 
     await repo.save(profile)
