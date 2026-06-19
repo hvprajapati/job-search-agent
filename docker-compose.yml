@@ -39,9 +39,15 @@ services:
     container_name: pathfinder-api
     ports:
       - "8000:8000"
+    env_file: .env
     environment:
+      - APP_ENV=local
       - DATABASE_URL=postgresql+asyncpg://pathfinder:pathfinder_dev@postgres:5432/pathfinder
       - REDIS_URL=redis://redis:6379/0
+      - JWT_ALGORITHM=HS256
+      - JWT_PRIVATE_KEY=dev-secret-change-in-production-min-32-chars
+      - JWT_PUBLIC_KEY=dev-secret-change-in-production-min-32-chars
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY:-sk-your-key-here}
     depends_on:
       postgres:
         condition: service_healthy

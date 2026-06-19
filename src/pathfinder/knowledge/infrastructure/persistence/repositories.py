@@ -84,12 +84,18 @@ class SqlKnowledgeChunkRepository(KnowledgeChunkRepository):
 
     async def keyword_search(self, *, query: str, user_id: UUID,
                              limit: int = 50) -> list[KnowledgeChunk]:
+        from sqlalchemy import text as sa_text
         ts_query = func.plainto_tsquery("english", query)
-        stmt = select(KnowledgeChunkModel).where(
-            KnowledgeChunkModel.user_id == user_id,
-            KnowledgeChunkModel.is_active == True,
-            KnowledgeChunkModel.content_tsv.op("@@")(ts_query),
-        ).order_by(func.ts_rank(KnowledgeChunkModel.content_tsv, ts_query).desc()).limit(limit)
+        stmt = (
+            select(KnowledgeChunkModel)
+            .where(
+                KnowledgeChunkModel.user_id == user_id,
+                KnowledgeChunkModel.is_active == True,
+                sa_text("content_tsv @@ plainto_tsquery('english', :q)").bindparams(q=query),
+            )
+            .order_by(sa_text("ts_rank(content_tsv, plainto_tsquery('english', :q2)) DESC").bindparams(q2=query))
+            .limit(limit)
+        )
         result = await self._session.execute(stmt)
         return [m.to_domain() for m in result.scalars()]
 

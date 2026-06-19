@@ -59,7 +59,7 @@ class KnowledgeChunkModel(Base, UUIDMixin, TimestampMixin):
     chunk_index: Mapped[int] = mapped_column(Integer, default=0)
     token_count: Mapped[int] = mapped_column(Integer, default=0)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
-    content_tsv: Mapped[str | None] = mapped_column(Text, nullable=True, deferred=True)
+    # content_tsv is a generated column — accessed via raw SQL in keyword_search
 
     def to_domain(self) -> KnowledgeChunk:
         meta = self.chunk_metadata or {}
