@@ -1,0 +1,142 @@
+{
+  "passed": 7,
+  "total": 8,
+  "tests": [
+    {
+      "name": "ai_ml_engineer.txt",
+      "status": 200,
+      "skills": 22,
+      "experiences": 2,
+      "education": 2,
+      "parsed_fields": [
+        "full_name",
+        "headline",
+        "email",
+        "phone",
+        "location",
+        "summary",
+        "skills",
+        "work_experiences",
+        "education"
+      ],
+      "error": "",
+      "expected_skills_min": 12,
+      "expected_experiences_min": 1,
+      "expected_education_min": 1
+    },
+    {
+      "name": "data_engineer.txt",
+      "status": 200,
+      "skills": 16,
+      "experiences": 2,
+      "education": 1,
+      "parsed_fields": [
+        "full_name",
+        "headline",
+        "email",
+        "phone",
+        "location",
+        "summary",
+        "skills",
+        "work_experiences",
+        "education"
+      ],
+      "error": "",
+      "expected_skills_min": 10,
+      "expected_experiences_min": 1,
+      "expected_education_min": 1
+    },
+    {
+      "name": "backend_engineer.txt",
+      "status": 200,
+      "skills": 17,
+      "experiences": 2,
+      "education": 1,
+      "parsed_fields": [
+        "full_name",
+        "headline",
+        "email",
+        "phone",
+        "location",
+        "summary",
+        "skills",
+        "work_experiences",
+        "education"
+      ],
+      "error": "",
+      "expected_skills_min": 10,
+      "expected_experiences_min": 1,
+      "expected_education_min": 1
+    },
+    {
+      "name": "fresher.txt",
+      "status": 200,
+      "skills": 19,
+      "experiences": 1,
+      "education": 1,
+      "parsed_fields": [
+        "full_name",
+        "headline",
+        "email",
+        "phone",
+        "location",
+        "summary",
+        "skills",
+        "work_experiences",
+        "education"
+      ],
+      "error": "",
+      "expected_skills_min": 10,
+      "expected_experiences_min": 0,
+      "expected_education_min": 1
+    },
+    {
+      "name": "empty.txt",
+      "status": 422,
+      "skills": 0,
+      "experiences": 0,
+      "education": 0,
+      "parsed_fields": [],
+      "error": "{\"error\":{\"code\":\"VALIDATIONERROR\",\"message\":\"File is empty. Please upload a valid resume.\",\"request_id\":\"57ca241f-ff7b-4dac-a0bd-d9d6a1a5417b\"}}",
+      "expected_status": "4xx"
+    },
+    {
+      "name": "corrupt.pdf",
+      "status": 422,
+      "skills": 0,
+      "experiences": 0,
+      "education": 0,
+      "parsed_fields": [],
+      "error": "{\"error\":{\"code\":\"VALIDATIONERROR\",\"message\":\"Could not read PDF file. It may be corrupted or password-protected.\",\"request_id\":\"c5e28f1e-8a5b-499b-b92e-5fb07857f198\"}}",
+      "expected_status": "4xx"
+    },
+    {
+      "name": "fake.pdf",
+      "status": 422,
+      "skills": 0,
+      "experiences": 0,
+      "education": 0,
+      "parsed_fields": [],
+      "error": "{\"error\":{\"code\":\"VALIDATIONERROR\",\"message\":\"Could not read PDF file. It may be corrupted or password-protected.\",\"request_id\":\"eeb2707a-0a1b-4177-91c9-710bce670886\"}}",
+      "expected_status": "4xx"
+    },
+    {
+      "name": "large.txt",
+      "status": 200,
+      "skills": 0,
+      "experiences": 0,
+      "education": 0,
+      "parsed_fields": [
+        "full_name",
+        "email",
+        "phone",
+        "skills",
+        "work_experiences",
+        "education"
+      ],
+      "error": "",
+      "expected_skills_min": 10,
+      "resume_size_chars": 9938
+    }
+  ]
+}
