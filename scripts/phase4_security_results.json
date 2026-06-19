@@ -1,0 +1,118 @@
+{
+  "passed": 14,
+  "total": 16,
+  "tests": [
+    {
+      "test": "No Authorization header",
+      "status": "PASS",
+      "http_status": 401,
+      "expected": "401",
+      "detail": ""
+    },
+    {
+      "test": "Invalid JWT format",
+      "status": "PASS",
+      "http_status": 401,
+      "expected": "401",
+      "detail": ""
+    },
+    {
+      "test": "Expired JWT",
+      "status": "PASS",
+      "http_status": 401,
+      "expected": "401",
+      "detail": ""
+    },
+    {
+      "test": "Tampered JWT signature",
+      "status": "PASS",
+      "http_status": 401,
+      "expected": "401",
+      "detail": ""
+    },
+    {
+      "test": "Valid JWT (control)",
+      "status": "FAIL",
+      "http_status": 404,
+      "expected": "200",
+      "detail": ""
+    },
+    {
+      "test": "SQL injection - login email",
+      "status": "FAIL",
+      "http_status": 422,
+      "expected": "401",
+      "detail": "should reject, not crash"
+    },
+    {
+      "test": "SQL injection - job search query",
+      "status": "PASS",
+      "http_status": 200,
+      "expected": "(200, 400, 422)",
+      "detail": "should handle safely"
+    },
+    {
+      "test": "SQL injection - knowledge search",
+      "status": "PASS",
+      "http_status": 200,
+      "expected": "(200, 400, 422)",
+      "detail": "should handle safely"
+    },
+    {
+      "test": "Prompt injection - system prompt leak",
+      "status": "PASS",
+      "http_status": 200,
+      "expected": "200",
+      "detail": "Leaked=NO"
+    },
+    {
+      "test": "Prompt injection - role override",
+      "status": "PASS",
+      "http_status": 200,
+      "expected": "200",
+      "detail": "Response len=83"
+    },
+    {
+      "test": "Prompt injection - jailbreak",
+      "status": "PASS",
+      "http_status": 200,
+      "expected": "200",
+      "detail": "guardrail should block"
+    },
+    {
+      "test": "Oversized registration fields",
+      "status": "PASS",
+      "http_status": 422,
+      "expected": "(400, 422, 413)",
+      "detail": ""
+    },
+    {
+      "test": "Negative limit parameter",
+      "status": "PASS",
+      "http_status": 422,
+      "expected": "(400, 422)",
+      "detail": ""
+    },
+    {
+      "test": "Very large offset",
+      "status": "PASS",
+      "http_status": 200,
+      "expected": "200",
+      "detail": "should return empty results"
+    },
+    {
+      "test": "Invalid UUID in path",
+      "status": "PASS",
+      "http_status": 422,
+      "expected": "(400, 422)",
+      "detail": ""
+    },
+    {
+      "test": "XSS in resume content",
+      "status": "PASS",
+      "http_status": 200,
+      "expected": "(200, 400, 422)",
+      "detail": "should sanitize or reject"
+    }
+  ]
+}
