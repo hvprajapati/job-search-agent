@@ -73,6 +73,17 @@ async def run_startup_checks() -> BootstrapReport:
     report.add("deepseek", api_configured,
                "API key configured" if api_configured else "API key not set — AI features will run in degraded mode")
 
+    # 5b. Local embeddings
+    try:
+        from pathfinder.shared.infrastructure.embedding_service import is_available as embed_available
+        if embed_available():
+            from pathfinder.shared.infrastructure.embedding_service import VECTOR_DIM
+            report.add("embeddings", True, f"Local model loaded ({VECTOR_DIM}d)")
+        else:
+            report.add("embeddings", False, "Local embedding model not loaded")
+    except Exception as e:
+        report.add("embeddings", False, str(e)[:80])
+
     # 6. LLM health
     try:
         from pathfinder.shared.infrastructure.llm_health import llm_health

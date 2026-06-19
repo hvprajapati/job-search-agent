@@ -27,7 +27,8 @@ RUN pip install --no-cache-dir --upgrade pip && \
     sentry-sdk>=2.19 \
     prometheus-client>=0.21 \
     jsonschema>=4.23 \
-    tiktoken>=0.7
+    tiktoken>=0.7 \
+    sentence-transformers>=2.7
 
 FROM python:3.12-slim AS runtime
 WORKDIR /app

@@ -28,6 +28,7 @@ dependencies = [
     "prometheus-client>=0.21",
     "jsonschema>=4.23",
     "tiktoken>=0.7",
+    "sentence-transformers>=2.7",
 ]
 
 [tool.setuptools.packages.find]

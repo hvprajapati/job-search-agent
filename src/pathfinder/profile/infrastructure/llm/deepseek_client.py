@@ -81,23 +81,38 @@ class DeepSeekClient:
             raise DeepSeekUnavailableError(str(e)) from e
 
     async def generate_embedding(self, text: str) -> list[float]:
-        if not self._api_configured or llm_health.status == LLMStatus.UNAVAILABLE:
-            return [0.0] * 3072  # Return zero-vector gracefully
-
+        """Generate embedding using local sentence-transformers model.
+        Falls back to DeepSeek API if available, but primary path is local."""
+        # Use local embedding model (primary)
         try:
-            client = await self._get_client()
-            resp = await client.post(
-                f"{self._base_url}/v1/embeddings",
-                json={"model": "deepseek-embed", "input": text[:8000]},
-            )
-            resp.raise_for_status()
-            data = resp.json()
-            llm_health.record_success()
-            return data["data"][0]["embedding"]
-        except Exception as e:
-            llm_health.record_failure(str(e)[:200])
-            logger.warning(f"Embedding generation failed: {str(e)[:120]}")
-            return [0.0] * 3072
+            from pathfinder.shared.infrastructure.embedding_service import generate_embedding as local_embed
+            import asyncio as _asyncio
+            loop = _asyncio.get_running_loop()
+            result = await loop.run_in_executor(None, local_embed, text)
+            if result and not all(v == 0.0 for v in result):
+                return result
+        except Exception:
+            pass  # Fall through to DeepSeek API attempt
+
+        # DeepSeek API fallback (if local model unavailable)
+        if self._api_configured and llm_health.status != LLMStatus.UNAVAILABLE:
+            try:
+                client = await self._get_client()
+                resp = await client.post(
+                    f"{self._base_url}/v1/embeddings",
+                    json={"model": "deepseek-embed", "input": text[:8000]},
+                )
+                resp.raise_for_status()
+                data = resp.json()
+                llm_health.record_success()
+                return data["data"][0]["embedding"]
+            except Exception as e:
+                llm_health.record_failure(str(e)[:200])
+                logger.warning(f"DeepSeek embedding failed: {str(e)[:120]}")
+
+        # Last resort: zero vector
+        from pathfinder.shared.infrastructure.embedding_service import VECTOR_DIM
+        return [0.0] * VECTOR_DIM
 
     async def close(self) -> None:
         if self._client:
