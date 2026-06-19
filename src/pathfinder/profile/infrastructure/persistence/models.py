@@ -23,7 +23,7 @@ class ProfileModel(Base, UUIDMixin, TimestampMixin):
     version: Mapped[int] = mapped_column(Integer, default=1)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     structured_data: Mapped[dict] = mapped_column(JSONB, default=dict, server_default="{}")
-    embedding: Mapped[list[float] | None] = mapped_column(Vector(3072), nullable=True)
+    embedding: Mapped[list[float] | None] = mapped_column(Vector(384), nullable=True)
     summary: Mapped[str | None] = mapped_column(Text, nullable=True)
     parsing_confidence: Mapped[dict] = mapped_column(JSONB, default=dict, server_default="{}")
     enrichment_data: Mapped[dict] = mapped_column(JSONB, default=dict, server_default="{}")

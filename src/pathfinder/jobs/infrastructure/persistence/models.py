@@ -76,7 +76,7 @@ class JobPostingModel(Base, UUIDMixin, TimestampMixin):
     source_url: Mapped[str] = mapped_column(Text, nullable=False)
     source_type: Mapped[str] = mapped_column(String(50))
     application_url: Mapped[str | None] = mapped_column(Text)
-    job_embedding: Mapped[list[float] | None] = mapped_column(Vector(3072))
+    job_embedding: Mapped[list[float] | None] = mapped_column(Vector(384))
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     first_seen_at: Mapped[datetime] = mapped_column(default=lambda: datetime.now(timezone.utc))
     last_seen_at: Mapped[datetime] = mapped_column(default=lambda: datetime.now(timezone.utc))

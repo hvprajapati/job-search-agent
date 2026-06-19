@@ -38,7 +38,7 @@ class IngestionPipeline:
                 )
                 try:
                     vec = await self._embedder.generate_embedding(text[:8000])
-                    if len(vec) == 3072:
+                    if len(vec) > 0:  # Accept any valid embedding dimension
                         chunk.embedding = vec
                 except Exception:
                     pass

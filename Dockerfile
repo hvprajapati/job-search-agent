@@ -40,6 +40,8 @@ COPY alembic.ini .
 COPY alembic/ ./alembic/
 RUN chown -R pathfinder:pathfinder /app
 ENV PYTHONPATH=/app/src
+ENV HF_HOME=/app/.cache/huggingface
+RUN mkdir -p /app/.cache/huggingface && chown -R pathfinder:pathfinder /app/.cache
 USER pathfinder
 EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=5s CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/v1/health/live')"

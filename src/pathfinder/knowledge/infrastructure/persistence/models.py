@@ -54,7 +54,7 @@ class KnowledgeChunkModel(Base, UUIDMixin, TimestampMixin):
     user_id: Mapped[UUID] = mapped_column(PGUUID, ForeignKey("users.id", ondelete="CASCADE"), index=True)
     content: Mapped[str] = mapped_column(Text)
     content_hash: Mapped[str] = mapped_column(String(32))
-    embedding: Mapped[list[float] | None] = mapped_column(Vector(3072), nullable=True)
+    embedding: Mapped[list[float] | None] = mapped_column(Vector(384), nullable=True)
     chunk_metadata: Mapped[dict] = mapped_column("metadata", JSONB, default=dict, server_default="{}")
     chunk_index: Mapped[int] = mapped_column(Integer, default=0)
     token_count: Mapped[int] = mapped_column(Integer, default=0)
