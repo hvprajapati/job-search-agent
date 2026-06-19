@@ -3,6 +3,9 @@ from fastapi import Request
 from starlette.middleware.base import BaseHTTPMiddleware
 
 
+DOCS_PATHS = {"/docs", "/openapi.json", "/redoc"}
+
+
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         response = await call_next(request)
@@ -11,5 +14,9 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         response.headers["X-XSS-Protection"] = "1; mode=block"
         response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
         response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
-        response.headers["Content-Security-Policy"] = "default-src 'self'"
+        # Allow CDN assets for Swagger UI docs
+        if request.url.path in DOCS_PATHS or request.url.path.startswith("/docs"):
+            response.headers["Content-Security-Policy"] = "default-src 'self' 'unsafe-inline' cdn.jsdelivr.net; script-src 'self' 'unsafe-inline' cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' cdn.jsdelivr.net"
+        else:
+            response.headers["Content-Security-Policy"] = "default-src 'self'"
         return response
