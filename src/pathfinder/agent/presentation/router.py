@@ -75,7 +75,23 @@ async def agent_execute(
         )
     else:
         config = {"configurable": {"thread_id": session_id}}
-        final_state = await supervisor_graph.ainvoke(initial_state, config)
+        try:
+            final_state = await supervisor_graph.ainvoke(initial_state, config)
+        except Exception as graph_err:
+            import logging
+            logging.getLogger(__name__).error(f"Agent graph execution failed: {graph_err}")
+            latency = int((time.monotonic() - start_time) * 1000)
+            return {
+                "data": {
+                    "execution_id": str(uuid4()),
+                    "session_id": session_id,
+                    "response": "I'm having trouble processing your request right now. Please try again in a moment.",
+                    "intent": "error",
+                    "intent_confidence": 0.0,
+                    "tool_results": {},
+                    "latency_ms": latency,
+                }
+            }
         latency = int((time.monotonic() - start_time) * 1000)
 
         # Log episodic memory

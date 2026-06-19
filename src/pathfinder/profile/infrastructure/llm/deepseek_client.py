@@ -39,12 +39,12 @@ class DeepSeekClient:
         if not self._api_configured:
             if fallback_on_unavailable:
                 logger.info("DeepSeek API key not configured — using fallback")
-                return LLMResponse(content="", tokens_used=0, model="none", latency_ms=0)
+                return LLMResponse(content="[API key not configured]", tokens_used=0, model="none", latency_ms=0)
             raise DeepSeekUnavailableError("DeepSeek API key not configured")
 
         if llm_health.status == LLMStatus.UNAVAILABLE and fallback_on_unavailable:
             logger.warning("DeepSeek circuit breaker open — using fallback")
-            return LLMResponse(content="", tokens_used=0, model="none", latency_ms=0)
+            return LLMResponse(content="[LLM temporarily unavailable — circuit breaker open]", tokens_used=0, model="none", latency_ms=0)
 
         messages = [
             {"role": "system", "content": system_prompt},
@@ -77,7 +77,7 @@ class DeepSeekClient:
             llm_health.record_failure(str(e)[:200])
             if fallback_on_unavailable:
                 logger.warning(f"DeepSeek call failed (fallback mode): {str(e)[:120]}")
-                return LLMResponse(content="", tokens_used=0, model="none", latency_ms=0)
+                return LLMResponse(content="[LLM error — service degraded]", tokens_used=0, model="none", latency_ms=0)
             raise DeepSeekUnavailableError(str(e)) from e
 
     async def generate_embedding(self, text: str) -> list[float]:
