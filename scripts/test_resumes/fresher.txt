@@ -1,0 +1,40 @@
+Rahul Gupta
+Computer Science Graduate
+rahul.gupta@college.edu
+Pune, India
+
+SUMMARY
+Recent Computer Science graduate with internship experience in web development. Passionate about building clean, efficient code. Active open-source contributor with 100+ GitHub contributions in the last year.
+
+PROJECTS
+E-Commerce Microservices — Personal Project (2024)
+- Built full-stack e-commerce platform with React frontend and Spring Boot backend
+- Implemented JWT authentication, payment integration, and Redis caching
+- Deployed on AWS EC2 with Docker containerization
+- Tech: Java, Spring Boot, React, PostgreSQL, Redis, Docker, AWS
+
+ML-Powered Task Manager — Final Year Project (2023–2024)
+- Built task management app with ML-based priority prediction
+- Trained classification model on 10K+ labeled tasks using scikit-learn
+- REST API with FastAPI, React frontend with TypeScript
+- Tech: Python, FastAPI, scikit-learn, React, TypeScript, PostgreSQL
+
+INTERNSHIP
+TechStart Inc — Software Engineering Intern (Summer 2023)
+- Developed internal dashboard for monitoring cloud infrastructure costs
+- Built REST APIs with Node.js and Express
+- Wrote unit tests achieving 90% code coverage
+- Tech: JavaScript, Node.js, Express, MongoDB, React
+
+EDUCATION
+University of Pune — B.Tech Computer Science (2024) — CGPA: 8.7/10
+
+SKILLS
+Java (Intermediate, 2y), Python (Intermediate, 2y), JavaScript (Intermediate, 2y), TypeScript (Beginner, 1y)
+React (Intermediate, 1y), Spring Boot (Intermediate, 1y), Node.js (Intermediate, 1y), FastAPI (Beginner, 1y)
+PostgreSQL (Intermediate, 2y), MongoDB (Intermediate, 1y), Redis (Beginner, 1y), Docker (Beginner, 1y)
+Git, Linux, REST APIs, Agile/Scrum
+
+CERTIFICATIONS
+AWS Cloud Practitioner
+Oracle Java Certification (OCA)

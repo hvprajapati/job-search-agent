@@ -44,9 +44,9 @@ class ProfileModel(Base, UUIDMixin, TimestampMixin):
             phone=data.get("phone", ""),
             location=data.get("location"),
             summary=data.get("summary", ""),
-            work_experiences=[WorkExperience(**e) for e in data.get("work_experiences", [])],
-            education=[Education(**e) for e in data.get("education", [])],
-            skills=[Skill(**s) for s in data.get("skills", [])],
+            work_experiences=[_deserialize_work_experience(e) for e in data.get("work_experiences", [])],
+            education=[_deserialize_education(e) for e in data.get("education", [])],
+            skills=[_deserialize_skill(s) for s in data.get("skills", [])],
             projects=[Project(**p) for p in data.get("projects", [])],
             certifications=data.get("certifications", []),
             publications=data.get("publications", []),
@@ -153,12 +153,51 @@ class ResumeModel(Base, UUIDMixin, TimestampMixin):
 
 
 def _serialize_vo(vo) -> dict:
+    """Serialize a value object to a plain dict, handling non-JSON types."""
+    from datetime import date, datetime
+    from uuid import UUID as _UUID
     result = {}
     for k, v in vo.__dict__.items():
         if isinstance(v, tuple):
             result[k] = list(v)
         elif hasattr(v, 'value'):
             result[k] = v.value
+        elif isinstance(v, (date, datetime)):
+            result[k] = v.isoformat()
+        elif isinstance(v, _UUID):
+            result[k] = str(v)
         else:
             result[k] = v
     return result
+
+
+def _deserialize_skill(data: dict) -> Skill:
+    """Parse a JSONB skill dict back to a Skill VO, handling enum strings."""
+    for field, enum_cls in (("proficiency", SkillProficiency), ("category", SkillCategory)):
+        val = data.get(field)
+        if isinstance(val, str) and val.strip():
+            try:
+                data[field] = enum_cls(val)
+            except ValueError:
+                data[field] = enum_cls.OTHER if enum_cls is SkillCategory else enum_cls.INTERMEDIATE
+    return Skill(**data)
+
+
+def _deserialize_work_experience(data: dict) -> WorkExperience:
+    """Parse a JSONB work experience dict back to a WorkExperience VO, handling date strings."""
+    from datetime import date as _date
+    for field in ("start_date", "end_date"):
+        val = data.get(field)
+        if isinstance(val, str) and val.strip():
+            try:
+                data[field] = _date.fromisoformat(val.strip()[:10])
+            except (ValueError, TypeError):
+                data[field] = None
+        elif not val:
+            data[field] = None
+    return WorkExperience(**data)
+
+
+def _deserialize_education(data: dict) -> Education:
+    """Parse a JSONB education dict back to an Education VO."""
+    return Education(**data)

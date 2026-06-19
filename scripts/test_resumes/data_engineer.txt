@@ -1,0 +1,33 @@
+Priya Sharma
+Senior Data Engineer
+priya.sharma@email.com
+Bangalore, India
+
+SUMMARY
+Data Engineer with 5+ years building scalable data pipelines and infrastructure. Experienced in Spark, Airflow, and cloud data warehouses. Built data platforms handling 50TB+ daily data ingestion.
+
+WORK EXPERIENCE
+Amazon — Data Engineer II (2021–Present)
+- Designed ETL pipelines processing 30TB daily using Apache Spark and Airflow
+- Built real-time streaming pipeline with Kafka and Flink for order analytics
+- Migrated on-prem Hadoop workloads to AWS EMR, reducing costs by 45%
+- Tech stack: Python, Spark, Airflow, Kafka, AWS (EMR, Redshift, S3), SQL
+
+Flipkart — Data Engineer (2019–2021)
+- Built data warehouse on Google BigQuery serving 200+ analysts
+- Developed CI/CD pipelines for data validation using dbt and GitHub Actions
+- Optimized Spark jobs reducing compute costs by 35%
+- Tech stack: Python, SQL, dbt, Airflow, GCP, BigQuery, Terraform
+
+EDUCATION
+IIT Delhi — B.Tech Computer Science (2019)
+
+SKILLS
+Python (Expert, 6y), SQL (Expert, 6y), Apache Spark (Advanced, 4y), Airflow (Advanced, 3y)
+Kafka (Intermediate, 2y), AWS (Advanced, 4y), GCP (Advanced, 3y), Terraform (Intermediate, 2y)
+dbt (Intermediate, 2y), Snowflake (Advanced, 3y), Redshift (Advanced, 3y)
+ETL/ELT, Data Modeling, Data Warehousing, Stream Processing, Data Quality
+
+CERTIFICATIONS
+AWS Data Analytics Specialty
+Google Professional Data Engineer

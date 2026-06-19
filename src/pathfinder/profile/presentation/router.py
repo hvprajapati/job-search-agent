@@ -95,35 +95,216 @@ async def import_resume(
     parsed = {}
     try:
         resp = await llm.chat_completion(
-            system_prompt="Extract structured profile data from this resume. Output JSON with: full_name, headline, email, phone, location{city,state,country}, summary, work_experiences[{company,title,start_date,end_date,description,achievements[],tech_stack[]}], education[{institution,degree,field,graduation_year}], skills[{name,years}]. Only include information explicitly in the resume.",
-            user_prompt=text[:6000],
+            system_prompt=(
+                "You are a resume parser. Extract structured data from the resume text. "
+                "Output ONLY valid JSON — no markdown, no explanations.\n\n"
+                "JSON schema:\n"
+                "{\n"
+                '  "full_name": "string",\n'
+                '  "headline": "string",\n'
+                '  "email": "string",\n'
+                '  "phone": "string",\n'
+                '  "location": {"city": "string", "state": "string", "country": "string"},\n'
+                '  "summary": "string",\n'
+                '  "skills": [{"name": "Python", "years": 8, "proficiency": "expert"}],\n'
+                '  "work_experiences": [{"company": "...", "title": "...", "start_date": "YYYY-MM-DD", "end_date": "YYYY-MM-DD", "description": "...", "achievements": ["..."], "tech_stack": ["..."]}],\n'
+                '  "education": [{"institution": "...", "degree": "BS/MS/PhD", "field": "Computer Science", "graduation_year": 2020}]\n'
+                "}\n\n"
+                "RULES:\n"
+                "1. For skills: extract EVERY technical skill, tool, language, framework, platform, and methodology mentioned. "
+                "Set proficiency based on years/context (8y+ → expert, 5-7y → advanced, 2-4y → intermediate, <2y → beginner). "
+                "Include soft-skill-like tech terms (MLOps, A/B Testing, Distributed Training, CI/CD).\n"
+                "2. For work_experiences: every position with company/title. Parse dates if present. "
+                "Extract achievements as an array of bullet strings. Extract tech_stack as array of technology names used.\n"
+                "3. For education: every degree with institution, field, graduation year.\n"
+                "4. Only include information explicitly found in the resume. Never fabricate.\n"
+                "5. If a field is not found, omit it or set to empty string/null."
+            ),
+            user_prompt=text[:8000],
             temperature=0.1,
             response_format={"type": "json_object"},
         )
         if resp.content:
             parsed = json.loads(resp.content)
-    except json.JSONDecodeError:
+    except (json.JSONDecodeError, Exception):
         pass  # LLM returned empty or unparseable — use regex fallback
 
-    # Fallback: basic regex extraction if LLM unavailable
+    # Fallback: regex extraction if LLM unavailable
     if not parsed:
         import re
         email_match = re.search(r'[\w.+-]+@[\w-]+\.[\w.-]+', text)
         phone_match = re.search(r'\+?[\d\s\(\)-]{7,15}', text)
+
+        # Regex skill extraction using technology patterns
+        tech_skills = set()
+        tech_pattern = re.compile(
+            r"\b(?:Python|JavaScript|TypeScript|Java|Golang?|Rust|Ruby|Scala|"
+            r"Swift|Kotlin|SQL|GraphQL|React|Angular|Vue\.?js|Django|Flask|FastAPI|"
+            r"Spring|Node\.js|Express|Docker|Kubernetes|K8s|AWS|GCP|Azure|"
+            r"Terraform|Ansible|Jenkins|GitLab|GitHub|PostgreSQL|MySQL|MongoDB|"
+            r"Redis|Kafka|RabbitMQ|Elasticsearch|Spark|Hadoop|TensorFlow|PyTorch|"
+            r"Pandas|NumPy|Scikit-learn|Selenium|Cypress|Jest|Mocha|Linux|Unix|"
+            r"CUDA|MLOps|RAG|LLM|Generative\s*AI|A/B\s*Testing|CI/CD|"
+            r"Feature\s*Engineering|Model\s*Deployment|Distributed\s*Training|"
+            r"Vector\s*Search|Embeddings?|Airflow|Prometheus|Grafana|Nginx|"
+            r"CircleCI|Travis|Bitbucket|JIRA|Confluence|Figma|Sketch)\b",
+            re.IGNORECASE,
+        )
+        for match in tech_pattern.finditer(text):
+            skill_name = match.group(0).strip()
+            if len(skill_name) >= 2:
+                tech_skills.add(skill_name)
+
+        # Regex experience extraction
+        experiences = []
+        exp_section = re.search(
+            r"(?:WORK|EXPERIENCE|EMPLOYMENT|PROFESSIONAL\s*EXPERIENCE).*?(?=EDUCATION|SKILLS|CERTIFICATION|PROJECTS|$)",
+            text, re.IGNORECASE | re.DOTALL,
+        )
+        if exp_section:
+            exp_text = exp_section.group(0)
+            # Match "Company — Role (dates)" or "Company, Role" patterns
+            exp_blocks = re.findall(
+                r"([A-Z][A-Za-z\s&.,]+)(?:—|–|-|,)\s*([A-Z][A-Za-z\s]+?)(?:\s*\(.*?\d{4}.*?\)|\s*\(.*?present.*?\))",
+                exp_text,
+            )
+            for company, title in exp_blocks[:10]:
+                company = company.strip()
+                title = title.strip()
+                if len(company) > 2 and len(title) > 2:
+                    experiences.append({"company": company, "title": title})
+
+        # Regex education extraction
+        education_list = []
+        edu_section = re.search(
+            r"(?:EDUCATION|ACADEMIC).*?(?=SKILLS|CERTIFICATION|PROJECTS|WORK|EXPERIENCE|$)",
+            text, re.IGNORECASE | re.DOTALL,
+        )
+        if edu_section:
+            edu_text = edu_section.group(0)
+            edu_blocks = re.findall(
+                r"([A-Z][A-Za-z\s&.,]+(?:University|College|Institute)[A-Za-z\s&.,]*).*?(BS|MS|BA|MA|MBA|PhD|Bachelor|Master|Doctorate|B\.?S\.?|M\.?S\.?|B\.?A\.?|M\.?A\.?).*?((?:Computer|Electrical|Mechanical|Data|Software|Chemical|Civil|Aerospace)\s*(?:Science|Engineering|Math))",
+                edu_text,
+            )
+            for inst, deg, fld in edu_blocks[:5]:
+                education_list.append({
+                    "institution": inst.strip(),
+                    "degree": deg.strip(),
+                    "field": fld.strip(),
+                })
+
         parsed = {
             "full_name": text.strip().split('\n')[0][:100] if text else "",
             "email": email_match.group(0) if email_match else "",
             "phone": phone_match.group(0) if phone_match else "",
+            "skills": [{"name": s} for s in sorted(tech_skills)],
+            "work_experiences": experiences,
+            "education": education_list,
         }
         logger = __import__('logging').getLogger(__name__)
-        logger.info("Resume parsed with regex fallback (LLM unavailable)")
+        logger.info(f"Resume parsed with regex fallback: {len(tech_skills)} skills, {len(experiences)} experiences, {len(education_list)} education")
 
-    # Create or update profile
+    # ── Convert parsed output to domain value objects ──
+    from pathfinder.profile.domain.value_objects import (
+        Skill, SkillProficiency, SkillCategory,
+        WorkExperience, Education,
+    )
+    import uuid as _uuid
+
+    def _parse_skills(raw: list) -> list[Skill]:
+        """Convert LLM-parsed skills to Skill VOs. Handles both string lists and dict lists."""
+        skills = []
+        proficiency_map = {
+            "expert": SkillProficiency.EXPERT, "advanced": SkillProficiency.ADVANCED,
+            "intermediate": SkillProficiency.INTERMEDIATE, "beginner": SkillProficiency.BEGINNER,
+        }
+        for item in (raw or []):
+            if isinstance(item, str):
+                skills.append(Skill(name=item.strip()))
+            elif isinstance(item, dict) and item.get("name"):
+                prof_str = (item.get("proficiency") or "").lower()
+                prof = proficiency_map.get(prof_str, SkillProficiency.INTERMEDIATE)
+                skills.append(Skill(
+                    name=item["name"].strip(),
+                    years=float(item.get("years", 0) or 0),
+                    proficiency=prof,
+                ))
+        return skills
+
+    def _parse_experiences(raw: list) -> list[WorkExperience]:
+        """Convert LLM-parsed experiences to WorkExperience VOs."""
+        exps = []
+        for item in (raw or []):
+            if not isinstance(item, dict):
+                continue
+            company = item.get("company", "")
+            if not company or not company.strip():
+                continue
+            start_date = None
+            end_date = None
+            try:
+                from datetime import date
+                sd = item.get("start_date", "")
+                if sd and str(sd).strip():
+                    start_date = date.fromisoformat(str(sd).strip()[:10])
+                ed = item.get("end_date", "")
+                if ed and str(ed).strip() and str(ed).strip().lower() not in ("present", "current", "null", ""):
+                    end_date = date.fromisoformat(str(ed).strip()[:10])
+            except (ValueError, TypeError):
+                pass
+            exp_id = _uuid.uuid4().hex[:8]
+            exp = WorkExperience(
+                experience_id=exp_id,
+                company=company.strip(),
+                title=str(item.get("title", "")).strip(),
+                start_date=start_date,
+                end_date=end_date,
+                is_current=bool(
+                    str(item.get("end_date", "")).strip().lower() in ("present", "current") or
+                    (item.get("is_current"))
+                ),
+                description=str(item.get("description", "")).strip(),
+                achievements=tuple(
+                    a for a in (item.get("achievements") or []) if isinstance(a, str) and a.strip()
+                ),
+                tech_stack=tuple(
+                    t for t in (item.get("tech_stack") or []) if isinstance(t, str) and t.strip()
+                ),
+            )
+            exps.append(exp)
+        return exps
+
+    def _parse_education(raw: list) -> list[Education]:
+        """Convert LLM-parsed education to Education VOs."""
+        edu_list = []
+        for item in (raw or []):
+            if not isinstance(item, dict):
+                continue
+            institution = item.get("institution", "")
+            if not institution or not institution.strip():
+                continue
+            grad_year = None
+            try:
+                gy = item.get("graduation_year")
+                if gy and str(gy).strip():
+                    grad_year = int(gy)
+            except (ValueError, TypeError):
+                pass
+            edu = Education(
+                education_id=_uuid.uuid4().hex[:8],
+                institution=institution.strip(),
+                degree=str(item.get("degree", "")).strip(),
+                field=str(item.get("field", "")).strip(),
+                graduation_year=grad_year,
+            )
+            edu_list.append(edu)
+        return edu_list
+
+    # ── Create or update profile ──
     repo = SqlProfileRepository(session)
     profile = await repo.get_by_user_id(current_user.id)
     if profile is None:
         from pathfinder.profile.domain.entities import Profile
-        from pathfinder.profile.domain.value_objects import WorkExperience, Education, Skill
         profile = Profile.create_empty(user_id=current_user.id)
 
     if merge_strategy == "replace" or not profile.full_name:
@@ -134,11 +315,31 @@ async def import_resume(
         profile.location = parsed.get("location")
         profile.summary = parsed.get("summary", "")
 
+        # Structured fields — convert and persist
+        profile.skills = _parse_skills(parsed.get("skills", []))
+        profile.work_experiences = _parse_experiences(parsed.get("work_experiences", []))
+        profile.education = _parse_education(parsed.get("education", []))
+
+        profile.parsing_confidence = {
+            "full_name": 0.9 if parsed.get("full_name") else 0.0,
+            "skills": 0.7 if parsed.get("skills") else 0.0,
+            "experience": 0.7 if parsed.get("work_experiences") else 0.0,
+            "education": 0.7 if parsed.get("education") else 0.0,
+        }
+
     await repo.save(profile)
     await session.commit()
 
-    return {"data": {"profile_id": str(profile.id), "parsed_fields": list(parsed.keys()),
-                     "confidence": {"full_name": 0.9 if parsed.get("full_name") else 0.0}}}
+    return {
+        "data": {
+            "profile_id": str(profile.id),
+            "parsed_fields": list(parsed.keys()),
+            "skills_extracted": len(profile.skills),
+            "experiences_extracted": len(profile.work_experiences),
+            "education_extracted": len(profile.education),
+            "confidence": profile.parsing_confidence,
+        }
+    }
 
 
 @router.get("/resumes")

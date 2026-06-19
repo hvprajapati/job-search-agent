@@ -1,0 +1,24 @@
+MACHINE LEARNING ENGINEER JOB REQUIREMENTS
+
+Typical Requirements:
+- 5+ years of ML engineering experience
+- Expert in Python and at least one ML framework (PyTorch or TensorFlow)
+- Experience deploying ML models to production
+- Strong understanding of MLOps, CI/CD for ML
+- Experience with distributed training (Ray, Spark, or similar)
+- Knowledge of feature stores and model serving infrastructure
+- Familiarity with cloud platforms (AWS, GCP, or Azure)
+- Experience with containerization (Docker, Kubernetes)
+
+Nice to Have:
+- Experience with Large Language Models (LLMs) and Generative AI
+- Published research papers or technical blog posts
+- Experience with vector databases and embedding models
+- Knowledge of A/B testing and experimentation frameworks
+- Experience with real-time ML systems
+
+COMPANY CULTURE SIGNALS
+- Engineering-driven decision making
+- Strong emphasis on code review and testing
+- Remote-friendly work environment
+- Continuous learning and conference attendance supported

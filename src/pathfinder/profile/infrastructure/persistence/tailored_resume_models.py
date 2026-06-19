@@ -50,7 +50,7 @@ class TailoredResumeModel(Base, UUIDMixin, TimestampMixin):
             original_content=self.original_content or {},
             strategy=self.strategy or "moderate",
             diffs=[ResumeDiff(**d) for d in (self.diffs or [])],
-            keyword_analysis=KeywordAnalysis(**self.keyword_analysis) if self.keyword_analysis else None,
+            keyword_analysis=_dict_to_keyword_analysis(self.keyword_analysis) if self.keyword_analysis else None,
             gap_report=GapReport(**self.gap_report) if self.gap_report else None,
             scores=ResumeScore(**self.scores) if self.scores else None,
             version=self.version or 1,
@@ -88,7 +88,7 @@ class TailoredResumeModel(Base, UUIDMixin, TimestampMixin):
 
 
 def _vo_to_dict(vo) -> dict:
-    """Convert a frozen dataclass value object to a plain dict."""
+    """Convert a frozen dataclass value object to a plain dict, recursively."""
     if vo is None:
         return None
     result = {}
@@ -96,7 +96,28 @@ def _vo_to_dict(vo) -> dict:
         if hasattr(value, '__dict__') and not isinstance(value, (str, int, float, bool, list, dict, tuple)):
             result[key] = _vo_to_dict(value)
         elif isinstance(value, tuple):
-            result[key] = list(value)
+            result[key] = [_vo_to_dict(v) if hasattr(v, '__dict__') and not isinstance(v, (str, int, float, bool, list, dict, tuple)) else v for v in value]
+        elif isinstance(value, list):
+            result[key] = [_vo_to_dict(v) if hasattr(v, '__dict__') and not isinstance(v, (str, int, float, bool, list, dict, tuple)) else v for v in value]
         else:
             result[key] = value
     return result
+
+
+def _dict_to_keyword_analysis(data: dict | None) -> "KeywordAnalysis | None":
+    """Reconstruct KeywordAnalysis from JSONB dict, converting keyword dicts to KeywordEntry objects."""
+    if data is None:
+        return None
+    keywords_raw = data.get("keywords", [])
+    keywords = tuple(
+        KeywordEntry(**kw) if isinstance(kw, dict) else kw
+        for kw in keywords_raw
+    )
+    return KeywordAnalysis(
+        keywords=keywords,
+        coverage_before=data.get("coverage_before", 0.0),
+        coverage_after=data.get("coverage_after", 0.0),
+        added_count=data.get("added_count", 0),
+        removed_count=data.get("removed_count", 0),
+        stuffing_risk=data.get("stuffing_risk", False),
+    )

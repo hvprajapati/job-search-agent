@@ -1,0 +1,29 @@
+Sarah Kim
+Full Stack Developer
+sarah.kim@webdev.com
+Toronto, Canada | Remote
+
+SUMMARY
+Full Stack Developer with 4 years building modern web applications. Proficient in React, TypeScript, and Node.js. Built SaaS products from concept to launch. Strong focus on UX and performance.
+
+WORK EXPERIENCE
+Shopify — Full Stack Developer (2022–Present)
+- Built merchant dashboard with React and TypeScript used by 50K+ merchants
+- Developed GraphQL API layer reducing client-side data fetching by 40%
+- Implemented component library used across 5 product teams
+- Tech stack: React, TypeScript, Node.js, GraphQL, PostgreSQL, Redis
+
+FreshBooks — Frontend Developer (2020–2022)
+- Rewrote invoicing module from Angular to React improving load time by 50%
+- Built real-time collaboration feature using WebSockets
+- Integrated Stripe payment processing for international billing
+- Tech stack: React, TypeScript, Python, Django, PostgreSQL, AWS
+
+EDUCATION
+University of Toronto — BASc Computer Engineering (2020)
+
+SKILLS
+React (Expert, 4y), TypeScript (Expert, 4y), JavaScript (Expert, 5y), Node.js (Advanced, 4y)
+Python (Intermediate, 3y), Django (Intermediate, 2y), GraphQL (Advanced, 2y), PostgreSQL (Advanced, 3y)
+HTML/CSS (Expert, 5y), Tailwind CSS (Advanced, 2y), Docker (Intermediate, 3y), AWS (Intermediate, 2y)
+Git, CI/CD (GitHub Actions), Jest, Cypress, Figma

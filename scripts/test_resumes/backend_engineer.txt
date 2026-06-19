@@ -1,0 +1,32 @@
+Marcus Johnson
+Senior Backend Engineer
+marcus.j@devs.io
+Austin, TX | Hybrid
+
+SUMMARY
+Backend engineer with 7 years building high-scale distributed systems. Expert in Go and Rust. Performance optimization specialist. Reduced API latency by 60% on systems serving 500K QPS.
+
+WORK EXPERIENCE
+Cloudflare — Senior Backend Engineer (2022–Present)
+- Designed and built rate-limiting service handling 2M requests/second
+- Optimized core proxy stack reducing P99 latency from 45ms to 12ms
+- Led migration of 12 microservices from Node.js to Go, cutting infra costs 55%
+- Tech stack: Go, Rust, Redis, PostgreSQL, Kubernetes, Prometheus
+
+Stripe — Backend Engineer (2019–2022)
+- Built payment processing pipeline handling $1B+ monthly volume
+- Designed idempotency layer for payment API ensuring exactly-once processing
+- Implemented distributed locking service using Redis and etcd
+- Tech stack: Go, Java, PostgreSQL, Kafka, Redis, gRPC, Docker
+
+EDUCATION
+Georgia Tech — BS Computer Science (2018)
+
+SKILLS
+Go (Expert, 6y), Rust (Advanced, 3y), Java (Advanced, 4y), Python (Intermediate, 3y)
+PostgreSQL (Expert, 6y), Redis (Advanced, 5y), Kafka (Advanced, 4y), MySQL (Advanced, 4y)
+Kubernetes (Advanced, 4y), Docker (Expert, 6y), gRPC, REST, GraphQL
+CI/CD, Microservices, Distributed Systems, Performance Optimization
+
+CERTIFICATIONS
+Kubernetes Certified Administrator (CKA)

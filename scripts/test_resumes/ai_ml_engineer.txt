@@ -1,0 +1,34 @@
+Alex Chen
+Senior ML Engineer
+alex.chen@example.com
+San Francisco, CA | Remote
+
+SUMMARY
+Experienced Machine Learning Engineer with 6 years building production ML systems. Expert in Python, PyTorch, and MLOps. Built recommendation systems serving 10M+ users at Stripe. Passionate about LLMs, generative AI, and scalable ML infrastructure.
+
+WORK EXPERIENCE
+Stripe — Senior ML Engineer (2022–Present)
+- Designed and deployed real-time fraud detection models reducing false positives by 40%
+- Built feature store serving 50+ ML models in production
+- Led migration from Spark to Ray for distributed training, cutting costs 30%
+- Tech stack: Python, PyTorch, Ray, Kubernetes, PostgreSQL, Redis
+
+Google — ML Engineer (2020–2022)
+- Developed recommendation models for Google Play Store
+- Built A/B testing framework for ML experiments
+- Published 2 papers on scalable recommendation systems
+- Tech stack: Python, TensorFlow, BigQuery, GCP
+
+EDUCATION
+Stanford University — MS Computer Science, Machine Learning (2020)
+UC Berkeley — BS Electrical Engineering & Computer Science (2018)
+
+SKILLS
+Python (Expert, 8y), PyTorch (Expert, 5y), TensorFlow (Advanced, 4y), CUDA (Intermediate, 2y)
+Kubernetes (Advanced, 3y), Docker (Expert, 6y), PostgreSQL (Advanced, 5y)
+MLOps, Feature Engineering, Model Deployment, A/B Testing, Distributed Training
+Generative AI, LLMs, RAG, Embeddings, Vector Search
+
+CERTIFICATIONS
+AWS Machine Learning Specialty
+Google Professional ML Engineer
