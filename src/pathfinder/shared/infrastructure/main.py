@@ -75,7 +75,11 @@ def create_app() -> FastAPI:
 
     @app.exception_handler(DomainError)
     async def domain_error_handler(request: Request, exc: DomainError):
-        status = _status_map.get(type(exc), 400)
+        status = 400
+        for cls in type(exc).__mro__:
+            if cls in _status_map:
+                status = _status_map[cls]
+                break
         return JSONResponse(
             status_code=status,
             content={
