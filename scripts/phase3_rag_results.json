@@ -1,0 +1,9 @@
+{
+  "documents_ingested": 20,
+  "total_chunks": 20,
+  "avg_ingestion_ms": 50.0,
+  "top1_relevance": 1.0,
+  "top3_relevance": 1.0,
+  "avg_search_latency_ms": 31.29999999946449,
+  "queries": 10
+}
