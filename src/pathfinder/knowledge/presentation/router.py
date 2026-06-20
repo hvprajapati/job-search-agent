@@ -1,8 +1,12 @@
 """Knowledge API routes."""
+import io
+import logging
+import re
 from uuid import UUID
 from fastapi import APIRouter, Depends, Query, UploadFile, File
 from fastapi.responses import Response
 from sqlalchemy.ext.asyncio import AsyncSession
+import PyPDF2
 from pathfinder.shared.infrastructure.database import get_session
 from pathfinder.identity.presentation.dependencies import get_current_user
 from pathfinder.identity.domain.entities import User
@@ -14,7 +18,45 @@ from pathfinder.knowledge.infrastructure.persistence.repositories import (
 )
 from pathfinder.profile.infrastructure.llm.deepseek_client import DeepSeekClient
 
+logger = logging.getLogger(__name__)
+
 router = APIRouter(prefix="/v1/knowledge", tags=["Knowledge"])
+
+
+def _extract_text(file_bytes: bytes, filename: str) -> str:
+    """Extract text from uploaded file, handling PDFs with PyPDF2."""
+    lower = filename.lower()
+
+    if lower.endswith(".pdf"):
+        try:
+            reader = PyPDF2.PdfReader(io.BytesIO(file_bytes))
+            pages: list[str] = []
+            for page in reader.pages:
+                page_text = page.extract_text()
+                if page_text:
+                    pages.append(page_text)
+            text = "\n\n".join(pages)
+            if text.strip():
+                logger.info("Extracted %d chars from %d PDF pages", len(text), len(reader.pages))
+                return text
+        except Exception as exc:
+            logger.warning("PyPDF2 extraction failed for %s: %s", filename, exc)
+
+    # Fallback: try UTF-8 decode (for .txt, .md, .docx plain text)
+    try:
+        text = file_bytes.decode("utf-8", errors="ignore")
+    except Exception:
+        text = ""
+    return text
+
+
+def _sanitize_text(text: str) -> str:
+    """Remove null bytes and control characters that PostgreSQL rejects."""
+    # Remove null bytes (0x00) — rejected by PostgreSQL UTF8
+    text = text.replace("\x00", "")
+    # Remove other problematic control chars but keep newlines and tabs
+    text = re.sub(r"[\x01-\x08\x0b\x0c\x0e-\x1f\x7f-\x9f]", "", text)
+    return text
 
 
 @router.post("/ingest/document")
@@ -25,13 +67,15 @@ async def ingest_document(
     session: AsyncSession = Depends(get_session),
 ):
     file_bytes = await file.read()
-    try:
-        text = file_bytes.decode("utf-8", errors="ignore")
-    except Exception:
-        text = ""
+    filename = file.filename or "untitled"
+
+    text = _extract_text(file_bytes, filename)
+    text = _sanitize_text(text)
+
     if not text or len(text.strip()) < 50:
         from pathfinder.shared.domain.exceptions import ValidationError
-        raise ValidationError("Could not extract meaningful text from file", field="file")
+        detail = "Could not extract meaningful text from file. For PDFs, ensure the document contains selectable text (not scanned images)."
+        raise ValidationError(detail, field="file")
 
     doc = KnowledgeDocument.from_text(
         user_id=current_user.id, source_type=KnowledgeSource.USER_UPLOAD,

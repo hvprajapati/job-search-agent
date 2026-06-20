@@ -31,6 +31,7 @@ class SourceType(StrEnum):
     JOB_BOARD = "job_board"
     CAREER_PAGE = "career_page"
     COMMUNITY = "community"
+    SEED_SCRIPT = "seed_script"
     OTHER = "other"
 
 

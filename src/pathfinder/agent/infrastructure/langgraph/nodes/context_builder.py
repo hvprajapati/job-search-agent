@@ -54,7 +54,7 @@ async def context_builder_node(state: SupervisorState) -> dict:
             {"resume_id": str(r.id), "name": r.name, "is_base": r.is_base} for r in resumes
         ],
         "recent_history": [
-            {"type": ep.episode_type.value if hasattr(ep, 'episode_type') else str(ep.episode_type),
+            {"type": ep.episode_type if isinstance(ep.episode_type, str) else (ep.episode_type.value if hasattr(ep.episode_type, 'value') else str(ep.episode_type)),
              "summary": ep.context_summary, "timestamp": ep.created_at.isoformat() if ep.created_at else ""}
             for ep in recent[:15]
         ],

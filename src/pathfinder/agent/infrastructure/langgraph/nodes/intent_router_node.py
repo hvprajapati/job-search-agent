@@ -32,9 +32,9 @@ async def intent_router_node(state: SupervisorState) -> dict:
     router = _get_router()
     intent, confidence = await router.classify(enriched)
 
-    if confidence < 0.7:
+    if confidence < 0.55:
         return {
-            "intent": "general_question", "intent_confidence": confidence,
+            "intent": intent.value, "intent_confidence": confidence,
             "clarification_question": "I'm not quite sure what you'd like me to do. Could you rephrase?",
             "agent_phase": "needs_clarification",
         }

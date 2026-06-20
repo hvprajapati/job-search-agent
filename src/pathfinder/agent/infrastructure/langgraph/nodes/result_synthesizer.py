@@ -29,6 +29,7 @@ async def result_synthesizer_node(state: SupervisorState) -> dict:
                     parts.append(f"**{i}. {job['title']}** at {job.get('company', '')}\n   {job.get('location', '')} | {'Remote' if job.get('remote') == 'remote' else 'Onsite/Hybrid'}\n")
 
     elif intent == "match_me":
+        has_score = False
         for _step_id, data in results.items():
             if "overall_score" in data:
                 score = data["overall_score"]
@@ -41,6 +42,18 @@ async def result_synthesizer_node(state: SupervisorState) -> dict:
                     parts.append("\n**Skill gaps:**\n")
                     for g in data["skill_gaps"][:3]:
                         parts.append(f"  📋 {g['skill']} ({g['severity']})\n")
+                has_score = True
+            elif "recommendations" in data:
+                recs = data["recommendations"]
+                if recs:
+                    parts.append(f"I found **{len(recs)}** jobs that might be a good fit:\n")
+                    for i, r in enumerate(recs[:5], 1):
+                        parts.append(f"**{i}. {r['title']}** at {r.get('company', 'Unknown')}\n")
+                    parts.append("\nTo see how well you match a specific job, tell me which one interests you.")
+                else:
+                    parts.append("I couldn't find any matching jobs right now. Try updating your profile with more skills.")
+        if not has_score and not parts:
+            parts.append("Let me find jobs that match your profile. What kind of role are you looking for?")
 
     elif intent == "general_question":
         if name:
