@@ -48,3 +48,4 @@ keys/
 
 # Test
 .pytest_cache/
+pathfinder-ui/
