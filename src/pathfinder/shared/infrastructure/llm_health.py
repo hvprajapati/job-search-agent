@@ -70,5 +70,5 @@ class DeepSeekHealthChecker:
         }
 
 
-# Global singleton
-llm_health = DeepSeekHealthChecker(failure_threshold=5, recovery_timeout=30.0)
+# Global singleton — tuned for reliability: 10 failures before circuit opens, 15s recovery
+llm_health = DeepSeekHealthChecker(failure_threshold=10, recovery_timeout=15.0)

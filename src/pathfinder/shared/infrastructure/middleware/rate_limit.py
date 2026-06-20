@@ -6,9 +6,9 @@ from pathfinder.shared.infrastructure.redis import get_redis
 
 TIER_LIMITS = {"free": 100, "pro": 300, "premium": 1000}
 ENDPOINT_OVERRIDES = {
-    "/v1/agent/execute": {"free": 20, "pro": 50, "premium": 200},
-    "/v1/auth/login": {"free": 10, "pro": 10, "premium": 10},
-    "/v1/auth/register": {"free": 5, "pro": 5, "premium": 5},
+    "/v1/agent/execute": {"free": 100, "pro": 300, "premium": 1000},
+    "/v1/auth/login": {"free": 20, "pro": 20, "premium": 20},
+    "/v1/auth/register": {"free": 20, "pro": 20, "premium": 20},
 }
 
 

@@ -1,12 +1,18 @@
-"""DeepSeek API client with health tracking and graceful degradation."""
+"""DeepSeek API client with health tracking, retry, and graceful degradation."""
 from __future__ import annotations
 import time
+import asyncio
 import logging
 import httpx
 from pathfinder.shared.config import get_settings
 from pathfinder.shared.infrastructure.llm_health import llm_health, LLMStatus
 
 logger = logging.getLogger(__name__)
+
+# Retry configuration
+MAX_RETRIES = 3
+RETRY_BASE_DELAY = 1.0  # seconds — 1s, 2s, 4s exponential backoff
+RETRYABLE_STATUSES = {429, 503, 502, 504}
 
 
 class DeepSeekUnavailableError(Exception):
@@ -58,27 +64,57 @@ class DeepSeekClient:
             body["response_format"] = response_format
 
         start = time.monotonic()
-        try:
-            client = await self._get_client()
-            resp = await client.post(f"{self._base_url}/v1/chat/completions", json=body)
-            resp.raise_for_status()
-            data = resp.json()
-            latency_ms = int((time.monotonic() - start) * 1000)
-            llm_health.record_success()
+        last_error = None
 
-            choice = data["choices"][0]
-            return LLMResponse(
-                content=choice["message"]["content"],
-                tokens_used=data.get("usage", {}).get("total_tokens", 0),
-                model=data.get("model", self._model),
-                latency_ms=latency_ms,
-            )
-        except Exception as e:
-            llm_health.record_failure(str(e)[:200])
-            if fallback_on_unavailable:
-                logger.warning(f"DeepSeek call failed (fallback mode): {str(e)[:120]}")
-                return LLMResponse(content="[LLM error — service degraded]", tokens_used=0, model="none", latency_ms=0)
-            raise DeepSeekUnavailableError(str(e)) from e
+        for attempt in range(MAX_RETRIES + 1):
+            try:
+                client = await self._get_client()
+                resp = await client.post(f"{self._base_url}/v1/chat/completions", json=body)
+
+                # Retry on transient failures
+                if resp.status_code in RETRYABLE_STATUSES and attempt < MAX_RETRIES:
+                    delay = RETRY_BASE_DELAY * (2 ** attempt)
+                    logger.info(f"DeepSeek {resp.status_code} — retrying in {delay}s (attempt {attempt + 1}/{MAX_RETRIES})")
+                    await asyncio.sleep(delay)
+                    continue
+
+                # Non-retryable error — raise
+                if resp.status_code >= 400:
+                    resp.raise_for_status()
+
+                data = resp.json()
+                latency_ms = int((time.monotonic() - start) * 1000)
+                llm_health.record_success()
+
+                choice = data["choices"][0]
+                return LLMResponse(
+                    content=choice["message"]["content"],
+                    tokens_used=data.get("usage", {}).get("total_tokens", 0),
+                    model=data.get("model", self._model),
+                    latency_ms=latency_ms,
+                )
+            except httpx.HTTPStatusError as e:
+                last_error = e
+                if e.response.status_code in RETRYABLE_STATUSES and attempt < MAX_RETRIES:
+                    delay = RETRY_BASE_DELAY * (2 ** attempt)
+                    await asyncio.sleep(delay)
+                    continue
+                break  # Non-retryable status — exit loop
+            except Exception as e:
+                last_error = e
+                if attempt < MAX_RETRIES:
+                    delay = RETRY_BASE_DELAY * (2 ** attempt)
+                    logger.info(f"DeepSeek error — retrying in {delay}s: {str(e)[:80]}")
+                    await asyncio.sleep(delay)
+                    continue
+                break
+
+        # All retries exhausted
+        llm_health.record_failure(str(last_error)[:200])
+        if fallback_on_unavailable:
+            logger.warning(f"DeepSeek call failed after {MAX_RETRIES} retries (fallback mode): {str(last_error)[:120]}")
+            return LLMResponse(content="[LLM error — service degraded]", tokens_used=0, model="none", latency_ms=0)
+        raise DeepSeekUnavailableError(str(last_error)) from last_error
 
     async def generate_embedding(self, text: str) -> list[float]:
         """Generate embedding using local sentence-transformers model.
